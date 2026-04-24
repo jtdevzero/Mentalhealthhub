@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Mentális Egészség Kérdőív Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#1B2A4A;--navy2:#243558;--navy3:#2E4270;--gold:#C9973A;--gold2:#E8C47A;--gold3:#FDF3DC;--cream:#FAF8F4;--white:#fff;--txt:#1B2A4A;--txt2:#4A5568;--txt3:#8898A8;--red:#C0392B;--orange:#E67E22;--yellow:#D4AC0D;--green:#1E8449;--blue:#1A5276;--radius:12px;--shadow:0 4px 24px rgba(27,42,74,.10);--shadow-lg:0 8px 40px rgba(27,42,74,.16)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--txt);min-height:100vh;line-height:1.6}
+.app-header{background:var(--navy);position:sticky;top:0;z-index:100;box-shadow:var(--shadow-lg)}
+.header-inner{max-width:800px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+.header-left{display:flex;align-items:center;gap:12px}
+.header-back{background:none;border:none;color:var(--gold2);font-size:1.2rem;cursor:pointer;padding:4px 8px;border-radius:8px;display:none}
+.header-back:hover{background:rgba(255,255,255,.1)}
+.header-title{color:#fff;font-family:'DM Serif Display',serif;font-size:1.15rem}
+.header-sub{color:var(--gold2);font-size:.78rem;font-weight:300;margin-top:1px}
+.header-right{display:flex;align-items:center;gap:10px}
+.mode-badge{background:var(--gold);color:#fff;border-radius:20px;padding:4px 12px;font-size:.75rem;font-weight:600;cursor:pointer;border:none}
+.mode-badge:hover{background:var(--gold2);color:var(--navy)}
+.progress-wrap{height:3px;background:rgba(255,255,255,.15)}
+.progress-fill{height:100%;background:var(--gold);transition:width .4s ease;width:0}
+.main{max-width:800px;margin:0 auto;padding:20px 16px 80px}
+.hub-view{display:none}.hub-view.active{display:block}
+
+/* HUB GRID */
+.hub-hero{background:linear-gradient(135deg,var(--navy),var(--navy3));border-radius:var(--radius);padding:32px 24px;text-align:center;margin-bottom:20px;color:#fff}
+.hub-hero h1{font-family:'DM Serif Display',serif;font-size:1.8rem;margin-bottom:6px}
+.hub-hero p{color:var(--gold2);font-size:.9rem;font-weight:300}
+.hub-mode-toggle{display:flex;justify-content:center;gap:0;margin:16px auto;background:var(--navy2);border-radius:25px;padding:3px;max-width:280px}
+.hub-mode-btn{flex:1;padding:8px 16px;border:none;background:none;color:rgba(255,255,255,.5);font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;border-radius:22px;transition:all .2s}
+.hub-mode-btn.active{background:var(--gold);color:#fff}
+.hub-disclaimer{background:var(--gold3);border-left:4px solid var(--gold);border-radius:8px;padding:12px 16px;font-size:.82rem;color:var(--txt2);line-height:1.5;margin-bottom:20px}
+.hub-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:20px}
+@media(max-width:520px){.hub-grid{grid-template-columns:1fr}}
+.hub-card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s;border-top:4px solid var(--navy)}
+.hub-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.hub-card-body{padding:16px}
+.hub-card-icon{font-size:2rem;margin-bottom:6px}
+.hub-card-title{font-family:'DM Serif Display',serif;font-size:1rem;color:var(--navy);margin-bottom:2px}
+.hub-card-sub{font-size:.78rem;color:var(--txt2);margin-bottom:8px}
+.hub-card-meta{font-size:.72rem;color:var(--txt3);margin-bottom:10px}
+.hub-card-score{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:600;margin-bottom:8px}
+.hub-card-btn{width:100%;padding:10px;background:var(--navy);color:#fff;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;transition:background .2s}
+.hub-card-btn:hover{background:var(--navy2)}
+.hub-dash-btn{display:block;width:100%;padding:14px;background:#fff;border:2px solid var(--navy);color:var(--navy);border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;text-align:center;margin-bottom:14px}
+.hub-dash-btn:hover{background:var(--navy);color:#fff}
+.client-bar{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.client-bar-name{font-weight:600;font-size:.9rem}
+.client-bar-btn{padding:6px 14px;border-radius:8px;border:1px solid var(--navy);background:none;color:var(--navy);font-size:.78rem;font-weight:600;cursor:pointer}
+.client-bar-btn:hover{background:var(--navy);color:#fff}
+
+/* GENDER SELECT */
+.gender-card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;text-align:center;margin-bottom:16px}
+.gender-card h2{font-family:'DM Serif Display',serif;font-size:1.3rem;margin-bottom:12px}
+.gender-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+.gender-btn{border:2px solid #E8EDF5;border-radius:var(--radius);padding:20px 14px;cursor:pointer;transition:all .2s;text-align:center;background:#fff}
+.gender-btn:hover{border-color:var(--navy);transform:translateY(-2px)}
+.gender-btn.sel{border-color:var(--gold);background:var(--gold3)}
+.gender-btn .g-icon{font-size:2rem;margin-bottom:6px}
+.gender-btn .g-name{font-family:'DM Serif Display',serif;font-size:1rem;margin-bottom:4px}
+.gender-btn .g-desc{font-size:.78rem;color:var(--txt2)}
+
+/* QUESTIONNAIRE */
+.q-intro{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px}
+.q-intro-hero{background:linear-gradient(135deg,var(--navy),var(--navy3));padding:24px;color:#fff}
+.q-intro-hero h2{font-family:'DM Serif Display',serif;font-size:1.4rem;margin-bottom:4px}
+.q-intro-hero p{color:var(--gold2);font-size:.85rem}
+.q-intro-body{padding:20px}
+.q-intro-body p{font-size:.88rem;color:var(--txt2);margin-bottom:12px;line-height:1.6}
+.q-warn{background:var(--gold3);border-left:4px solid var(--gold);border-radius:8px;padding:10px 14px;font-size:.82rem;color:var(--txt2);line-height:1.5;margin-bottom:12px}
+.crisis-banner{background:#FDEDEC;border:2px solid var(--red);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;display:none}
+.crisis-banner.show{display:block}
+.crisis-banner h4{color:var(--red);font-size:.9rem;margin-bottom:4px}
+.crisis-banner p{font-size:.82rem;color:var(--txt2);line-height:1.5}
+.crisis-banner a{color:var(--red);font-weight:700}
+.q-page-info{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-size:.82rem;color:var(--txt3)}
+.q-card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:10px;overflow:hidden;transition:box-shadow .2s}
+.q-card:hover{box-shadow:var(--shadow-lg)}
+.q-card.answered{opacity:.85}
+.q-card.crisis-item{border:2px solid var(--red)}
+.q-top{padding:14px 16px 10px;display:flex;gap:10px;align-items:flex-start}
+.q-num{font-size:.72rem;color:var(--txt3);font-weight:600;min-width:28px;padding-top:2px}
+.q-text{font-size:.92rem;line-height:1.5;flex:1}
+.q-tag{font-size:.68rem;font-weight:600;padding:2px 8px;border-radius:10px;color:#fff;white-space:nowrap}
+.answer-row{display:flex;padding:10px 16px 14px;gap:6px;flex-wrap:wrap}
+.ans-btn{flex:1;min-width:0;min-height:44px;border:2px solid #E8EDF5;border-radius:10px;background:var(--cream);font-size:.75rem;font-weight:600;color:var(--txt3);cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 4px;line-height:1.2}
+.ans-btn:hover{border-color:var(--navy);color:var(--navy);background:#EEF2F9}
+.ans-btn.selected{color:#fff;font-weight:700}
+.dual-label{font-size:.78rem;font-weight:600;color:var(--txt2);padding:2px 16px 6px;margin-top:4px}
+.nav-btns{display:flex;gap:12px;margin-top:20px}
+.nav-btn{flex:1;padding:14px;border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;border:none;transition:all .2s}
+.nav-btn-primary{background:var(--navy);color:#fff}
+.nav-btn-primary:hover{background:var(--navy2)}
+.nav-btn-secondary{background:#fff;border:2px solid var(--navy);color:var(--navy)}
+.nav-btn-secondary:hover{background:var(--navy);color:#fff}
+.nav-btn:disabled{opacity:.4;cursor:not-allowed}
+.start-btn{width:100%;padding:14px;background:var(--navy);color:#fff;border:none;border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:600;cursor:pointer;margin-top:12px;transition:all .2s}
+.start-btn:hover{background:var(--navy2);transform:translateY(-1px)}
+
+/* RESULTS */
+.res-hero{background:linear-gradient(135deg,var(--navy),var(--navy3));border-radius:var(--radius);padding:24px;color:#fff;margin-bottom:16px;text-align:center}
+.res-hero h2{font-family:'DM Serif Display',serif;font-size:1.5rem;margin-bottom:4px}
+.res-hero .res-sub{color:var(--gold2);font-size:.85rem}
+.res-score-big{font-size:2.5rem;font-weight:700;margin:12px 0 4px}
+.res-level-badge{display:inline-block;padding:4px 16px;border-radius:20px;font-size:.85rem;font-weight:600}
+.res-section{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:14px}
+.res-section h3{font-family:'DM Serif Display',serif;font-size:1.05rem;color:var(--navy);margin-bottom:14px}
+.sub-bar{margin-bottom:12px}
+.sub-bar-head{display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:4px}
+.sub-bar-name{font-weight:600}
+.sub-bar-val{color:var(--txt3)}
+.sub-bar-track{height:8px;background:#EEF2F9;border-radius:4px;overflow:hidden}
+.sub-bar-fill{height:100%;border-radius:4px;transition:width .8s ease}
+.res-text{font-size:.88rem;color:var(--txt2);line-height:1.7;margin-bottom:10px}
+.res-next{background:var(--gold3);border-radius:8px;padding:14px;margin-top:12px}
+.res-next h4{font-size:.9rem;margin-bottom:8px}
+.res-next li{font-size:.84rem;color:var(--txt2);margin-bottom:4px;margin-left:16px}
+.res-note{width:100%;min-height:80px;border:1px solid #E8EDF5;border-radius:8px;padding:10px;font-family:'DM Sans',sans-serif;font-size:.85rem;resize:vertical;margin-top:8px}
+.res-btns{display:flex;gap:12px;margin-top:16px}
+
+/* COMORBIDITY */
+.como-card{border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;border-left:4px solid}
+.como-card h4{font-size:.9rem;margin-bottom:4px}
+.como-card p{font-size:.82rem;color:var(--txt2);line-height:1.5}
+
+/* DASHBOARD */
+.dash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+@media(max-width:520px){.dash-grid{grid-template-columns:repeat(2,1fr)}}
+.dash-card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;text-align:center;cursor:pointer;transition:transform .2s}
+.dash-card:hover{transform:translateY(-2px)}
+.dash-icon{font-size:1.5rem;margin-bottom:4px}
+.dash-name{font-size:.78rem;font-weight:600;margin-bottom:4px}
+.dash-score{font-size:.72rem;color:var(--txt3)}
+.dash-done{color:var(--green)}.dash-empty{color:var(--txt3)}
+
+/* CLIENTS */
+.client-panel{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:16px}
+.client-panel h3{font-family:'DM Serif Display',serif;margin-bottom:14px}
+.client-input-row{display:flex;gap:10px;margin-bottom:14px}
+.client-input{flex:1;padding:10px 14px;border:1px solid #E8EDF5;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.9rem}
+.client-add-btn{padding:10px 20px;background:var(--navy);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer}
+.client-item{display:flex;align-items:center;justify-content:space-between;padding:12px;border:1px solid #E8EDF5;border-radius:8px;margin-bottom:8px;cursor:pointer;transition:background .2s}
+.client-item:hover{background:var(--cream)}
+.client-item.active{border-color:var(--gold);background:var(--gold3)}
+.client-item-name{font-weight:600;font-size:.9rem}
+.client-item-info{font-size:.75rem;color:var(--txt3)}
+.client-item-btns{display:flex;gap:6px}
+.client-del{background:none;border:1px solid var(--red);color:var(--red);border-radius:6px;padding:4px 10px;font-size:.72rem;cursor:pointer}
+
+/* CONSENT */
+.consent-overlay{position:fixed;inset:0;background:rgba(27,42,74,.7);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px}
+.consent-box{background:#fff;border-radius:var(--radius);max-width:500px;width:100%;padding:28px;box-shadow:var(--shadow-lg)}
+.consent-box h2{font-family:'DM Serif Display',serif;margin-bottom:12px}
+.consent-box p{font-size:.88rem;color:var(--txt2);line-height:1.6;margin-bottom:10px}
+.consent-box ul{margin:8px 0 16px 20px;font-size:.84rem;color:var(--txt2)}
+.consent-box li{margin-bottom:4px}
+.consent-accept{width:100%;padding:14px;background:var(--navy);color:#fff;border:none;border-radius:var(--radius);font-size:1rem;font-weight:600;cursor:pointer}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--navy);color:#fff;padding:10px 20px;border-radius:25px;font-size:.85rem;font-weight:600;transition:transform .3s;z-index:300;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.autosave-badge{position:fixed;top:70px;right:12px;background:var(--green);color:#fff;padding:4px 10px;border-radius:20px;font-size:.7rem;font-weight:600;opacity:0;transition:opacity .3s;z-index:150}
+.autosave-badge.show{opacity:1}
+
+/* PRINT */
+@media print{
+.app-header,.hub-mode-toggle,.nav-btns,.hub-card-btn,.start-btn,.client-bar,.hub-disclaimer,.consent-overlay,.toast,.autosave-badge,.res-note,.mode-badge,.header-back{display:none!important}
+body{background:#fff}
+.hub-view{display:block!important}
+.res-section,.res-hero,.como-card{break-inside:avoid}
+}
+
+/* DARK MODE */
+[data-theme="dark"]{--cream:#0f0f1a;--white:#181828;--txt:#f0f0ff;--txt2:#aaa;--txt3:#777;--shadow:0 4px 24px rgba(0,0,0,.3);--shadow-lg:0 8px 40px rgba(0,0,0,.4)}
+[data-theme="dark"] .hub-card,[data-theme="dark"] .q-card,[data-theme="dark"] .res-section,[data-theme="dark"] .client-panel,[data-theme="dark"] .gender-card,[data-theme="dark"] .q-intro,[data-theme="dark"] .dash-card,[data-theme="dark"] .client-item,[data-theme="dark"] .client-bar{background:#181828;border-color:#2a2a45}
+[data-theme="dark"] .ans-btn{background:#1e1e32;border-color:#2a2a45;color:#aaa}
+[data-theme="dark"] .hub-card-btn{background:var(--gold)}
+[data-theme="dark"] .hub-dash-btn{border-color:var(--gold);color:var(--gold)}
+[data-theme="dark"] .consent-box{background:#181828}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="header-inner">
+    <div class="header-left">
+      <button class="header-back" id="headerBack" onclick="goBack()">&#8592;</button>
+      <div>
+        <div class="header-title" id="headerTitle">Mentális Egészség Hub</div>
+        <div class="header-sub" id="headerSub">Klinikai szűrőkérdőívek</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="mode-badge" id="modeBadge" onclick="toggleMode()">Önismeret</button>
+    </div>
+  </div>
+  <div class="progress-wrap"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<div class="main">
+  <!-- CONSENT OVERLAY -->
+  <div class="consent-overlay" id="consentOverlay" style="display:none">
+    <div class="consent-box">
+      <h2>Tájékozott beleegyezés</h2>
+      <p>Ez az alkalmazás validált, tudományos alapú szűrőkérdőíveket tartalmaz. Az eredmények <strong>tájékoztató jellegűek</strong> — nem helyettesítik a szakorvosi diagnózist.</p>
+      <ul>
+        <li>Az adataid kizárólag a böngésződben tárolódnak (localStorage)</li>
+        <li>Semmilyen adat nem kerül szerverre</li>
+        <li>A kérdőívek szűrési célúak — a diagnózist kizárólag szakember állíthatja fel</li>
+        <li>Ha önkárosítási gondolataid vannak, kérlek hívd a <strong>116 123</strong> segélyvonalat</li>
+      </ul>
+      <button class="consent-accept" onclick="acceptConsent()">Megértettem, folytatom</button>
+    </div>
+  </div>
+
+  <!-- HUB VIEW -->
+  <div class="hub-view active" id="view-hub"></div>
+
+  <!-- GENDER SELECT (ADHD/AUT) -->
+  <div class="hub-view" id="view-gender"></div>
+
+  <!-- QUESTIONNAIRE VIEW -->
+  <div class="hub-view" id="view-questionnaire"></div>
+
+  <!-- RESULTS VIEW -->
+  <div class="hub-view" id="view-results"></div>
+
+  <!-- DASHBOARD VIEW -->
+  <div class="hub-view" id="view-dashboard"></div>
+
+  <!-- CLIENTS VIEW -->
+  <div class="hub-view" id="view-clients"></div>
+</div>
+
+<div class="toast" id="toast">Kérlek válaszolj minden kérdésre!</div>
+<div class="autosave-badge" id="autosaveBadge">Mentve</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   SECTION 1: ADHD/AUTIZMUS V3 DATA
+══════════════════════════════════════════════════════════ */
+const ADHD_QUESTIONS=[
+{id:1,text:"Nehezen tudom fenntartani a figyelmemet ismétlő vagy unalmas feladatoknál.",cat:"adhd_attn",g:"b",dsm:"A1",hidden:false},
+{id:2,text:"Elveszítem a fonalat beszélgetés közben, miközben látszólag figyelek.",cat:"adhd_attn",g:"b",dsm:"A1",hidden:false},
+{id:3,text:"Fontos dolgokról feledkezem meg, amelyekre emlékeznem kellett volna.",cat:"adhd_attn",g:"b",dsm:"A1",hidden:false},
+{id:4,text:"Nehezen kezdem el a feladatokat, még ha fontosak is.",cat:"adhd_attn",g:"b",dsm:"A1",hidden:false},
+{id:5,text:"Rendszeresen elveszítem a tárgyaimat (kulcs, telefon, iratok).",cat:"adhd_attn",g:"b",dsm:"A1",hidden:false},
+{id:6,text:"Részletekbe botlom — apró hibákat ejtek gondatlanságból.",cat:"adhd_attn",g:"b",dsm:"A1",hidden:false},
+{id:7,text:"Hiperfókuszálok érdekes dolgokon, de a kötelező feladatokat nem tudom elvégezni.",cat:"adhd_attn",g:"b",dsm:"A1",hidden:true},
+{id:8,text:"Rendszertelenül, kaotikusan szervezem a napjaimat.",cat:"adhd_attn",g:"b",dsm:"A1",hidden:false},
+{id:9,text:"Elkerülöm a szellemi erőfeszítést igénylő feladatokat.",cat:"adhd_attn",g:"m",dsm:"A1",hidden:false},
+{id:10,text:"Belső rendrakásként, lelki teherként élem meg a szervezetlenségemet.",cat:"adhd_attn",g:"f",dsm:"A1",hidden:true},
+{id:11,text:"Túlterheltnek érzem magam, ha több feladatot kell egyszerre kezelni.",cat:"adhd_attn",g:"b",dsm:"A1",hidden:false},
+{id:12,text:"Külső zajokra, mozgásra szinte azonnal eltereli a figyelmemet.",cat:"adhd_attn",g:"b",dsm:"A1",hidden:false},
+{id:13,text:"Belső nyugtalanságot, 'feszültséget' érzek, amit nem tudok levezetni.",cat:"adhd_hyp",g:"b",dsm:"A2",hidden:false},
+{id:14,text:"Nehéz csendben ülni — lábam rázom, ujjaimat kopogtatom.",cat:"adhd_hyp",g:"m",dsm:"A2",hidden:false},
+{id:15,text:"Belső feszültséget élek meg — kívülről nyugodt vagyok, belül kavargok.",cat:"adhd_hyp",g:"f",dsm:"A2",hidden:true},
+{id:16,text:"Állandóan tennék valamit, pihenés közben is.",cat:"adhd_hyp",g:"b",dsm:"A2",hidden:false},
+{id:17,text:"Nehezen tudok hosszan várni (sor, közlekedés, értekezlet).",cat:"adhd_hyp",g:"b",dsm:"A2",hidden:false},
+{id:18,text:"Alváshoz is nehezen jutok, mert az agyam nem áll le.",cat:"adhd_hyp",g:"b",dsm:"A2",hidden:true},
+{id:19,text:"Sokkal több energiám van másoknál, vagy hirtelen el is fogy teljesen.",cat:"adhd_hyp",g:"b",dsm:"A2",hidden:false},
+{id:20,text:"Váratlanul felugrálok vagy elmozgok, ha hosszan kellene ülni.",cat:"adhd_hyp",g:"m",dsm:"A2",hidden:false},
+{id:21,text:"Befejezem mások mondatait, vagy félbeszakítom őket.",cat:"adhd_imp",g:"b",dsm:"A2",hidden:false},
+{id:22,text:"Gondolkodás nélkül cselekedek, majd megbánom.",cat:"adhd_imp",g:"b",dsm:"A2",hidden:false},
+{id:23,text:"Hirtelenül, hevesen reagálok érzelmileg (düh, sírás, örömkitörés).",cat:"adhd_imp",g:"b",dsm:"A2",hidden:false},
+{id:24,text:"Pénzügyi döntések, vásárlások impulzívan születnek.",cat:"adhd_imp",g:"b",dsm:"A2",hidden:false},
+{id:25,text:"Nehéz nem mondani véleményt, amikor erre nem kérnek.",cat:"adhd_imp",g:"m",dsm:"A2",hidden:false},
+{id:26,text:"Sokat hibáztatom magam a kontrollvesztésemért — erős önkritika.",cat:"adhd_imp",g:"f",dsm:"A2",hidden:true},
+{id:27,text:"Hamar unok meg helyzeteket, kapcsolatokat, munkákat.",cat:"adhd_imp",g:"b",dsm:"A2",hidden:false},
+{id:28,text:"Visszautasítás különösen fájdalmas számomra (RSD).",cat:"adhd_imp",g:"b",dsm:"A2",hidden:true},
+{id:29,text:"Nehézséget okoz 'olvasni', mit akar valaki valójában mondani.",cat:"aut_soc",g:"b",dsm:"B1",hidden:false},
+{id:30,text:"Kis csoportos összejövetelek is kimerítőek számomra.",cat:"aut_soc",g:"b",dsm:"B1",hidden:false},
+{id:31,text:"Szociális szabályokat inkább logikával tanulom, mint ösztönösen értem.",cat:"aut_soc",g:"b",dsm:"B1",hidden:false},
+{id:32,text:"Idegenekkel való csevegés ('small talk') nehéz és erőltetett.",cat:"aut_soc",g:"b",dsm:"B1",hidden:false},
+{id:33,text:"Nehéz fenntartani a szemkontaktust természetes módon.",cat:"aut_soc",g:"m",dsm:"B1",hidden:false},
+{id:34,text:"Tudatosan figyelem és irányítom magam szociális helyzetekben (maszkírozás).",cat:"aut_soc",g:"f",dsm:"B1",hidden:true},
+{id:35,text:"Általában könnyebben boldogulok egy-egy emberrel, mint csoportban.",cat:"aut_soc",g:"b",dsm:"B1",hidden:false},
+{id:36,text:"Visszatekintve sokáig töprengek szociális helyzeteken.",cat:"aut_soc",g:"b",dsm:"B1",hidden:true},
+{id:37,text:"Szó szerint értelmezek mondatokat, iróniát, metaforát nehezen fogok fel.",cat:"aut_comm",g:"b",dsm:"B1",hidden:false},
+{id:38,text:"Mások arckifejezéséből nehéz leolvasni az érzelmeiket.",cat:"aut_comm",g:"b",dsm:"B1",hidden:false},
+{id:39,text:"Nehezen fejezem ki szóban, amit valójában érzek belül.",cat:"aut_comm",g:"b",dsm:"B1",hidden:false},
+{id:40,text:"Hangom, hangszínem monoton vagy 'szokatlan' mások szerint.",cat:"aut_comm",g:"m",dsm:"B1",hidden:false},
+{id:41,text:"Érzelmileg utánzom a körülöttem lévők stílusát, hogy beilleszkedjek.",cat:"aut_comm",g:"f",dsm:"B1",hidden:true},
+{id:42,text:"Szövegben (írásban) sokkal jobban ki tudom fejezni magam, mint szóban.",cat:"aut_comm",g:"b",dsm:"B1",hidden:false},
+{id:43,text:"A változatlan rutinok és struktúra nagyon fontosak a jólétemhez.",cat:"aut_rep",g:"b",dsm:"B2",hidden:false},
+{id:44,text:"Váratlan változások aránytalanul nagy stresszt okoznak.",cat:"aut_rep",g:"b",dsm:"B2",hidden:false},
+{id:45,text:"Meghatározott érdeklődési területeim vannak, amelyekben mélyen elmélyülök.",cat:"aut_rep",g:"b",dsm:"B3",hidden:false},
+{id:46,text:"Mozgásos vagy hangos ismétlő viselkedések segítenek megnyugodni (stimmelés).",cat:"aut_rep",g:"m",dsm:"B2",hidden:false},
+{id:47,text:"Belső, láthatatlan stimmelésem van (mentális dallamismétlés, képzeleti rituálék).",cat:"aut_rep",g:"f",dsm:"B2",hidden:true},
+{id:48,text:"Bizonyos dolgokat pontosan, meghatározott sorrendben kell elvégeznem.",cat:"aut_rep",g:"b",dsm:"B2",hidden:false},
+{id:49,text:"Bizonyos hangok, fények, textúrák vagy szagok elviselhetetlenül zavaróak.",cat:"aut_sens",g:"b",dsm:"B4",hidden:false},
+{id:50,text:"Zsúfolt, zajosan ingergazdag helyek hamar kimerítővé válnak.",cat:"aut_sens",g:"b",dsm:"B4",hidden:false},
+{id:51,text:"Szenzoros érzékenységemet igyekszem elrejteni mások előtt.",cat:"aut_sens",g:"f",dsm:"B4",hidden:true},
+{id:52,text:"Erős ingerek (hangos zene, érintés) fizikailag fájdalmasak lehetnek.",cat:"aut_sens",g:"b",dsm:"B4",hidden:false}
+];
+
+const ADHD_CATS={
+adhd_attn:{label:"Figyelem",color:"#E67E22",adhd:true},
+adhd_hyp:{label:"Hiperaktivitás",color:"#C0392B",adhd:true},
+adhd_imp:{label:"Impulzivitás",color:"#D4AC0D",adhd:true},
+aut_soc:{label:"Szociális",color:"#1A5276",adhd:false},
+aut_comm:{label:"Kommunikáció",color:"#1E8449",adhd:false},
+aut_rep:{label:"Rutinok",color:"#7D3C98",adhd:false},
+aut_sens:{label:"Szenzoros",color:"#C0392B",adhd:false}
+};
+
+const ADHD_COMORBID=[
+{icon:"😰",name:"Szorongás",adhd:50,aut:40,color:"#E67E22"},
+{icon:"😔",name:"Depresszió",adhd:30,aut:35,color:"#1A5276"},
+{icon:"😮",name:"PTSD",adhd:25,aut:30,color:"#7D3C98"},
+{icon:"😴",name:"Alvászavar",adhd:70,aut:50,color:"#1E8449"},
+{icon:"🍽️",name:"Evészavar",adhd:30,aut:25,color:"#C0392B"},
+{icon:"🔥",name:"Kiégés",adhd:40,aut:65,color:"#D4AC0D"}
+];
+
+/* ══════════════════════════════════════════════════════════
+   SECTION 2: ALL 12 QUESTIONNAIRE CONFIGS
+══════════════════════════════════════════════════════════ */
+const QUESTIONNAIRES = [
+{
+  id:'adhd_aut', title:'ADHD & Autizmus', subtitle:'Klinikai önértékelő v3',
+  icon:'🧩', color:'#C0392B', itemCount:52, estMinutes:12, hasGender:true,
+  scaleLabels:['Nem jellemző','Ritkán','Gyakran','Mindig'],
+  intro:'52 tételes, nemek szerint differenciált ADHD és autizmus spektrum szűrő, DSM-5 leképezéssel.',
+  disclaimer:'Ez a kérdőív nem validált standardizált mérőeszköz. Szűrési célú — a diagnózist kizárólag szakember állíthatja fel.'
+},
+{
+  id:'phq9', title:'Depresszió', subtitle:'PHQ-9',
+  icon:'💙', color:'#1A5276', itemCount:9, estMinutes:3, hasGender:false,
+  scaleLabels:['Egyáltalán nem','Néhány napon','A napok felén','Szinte minden nap'],
+  intro:'A PHQ-9 a depresszió súlyosságának mérésére szolgáló, WHO által ajánlott 9 tételes kérdőív.',
+  disclaimer:'Validált szűrőeszköz. Ha a 9. kérdésre pozitív választ ad, kérjük keressen szakembert.',
+  items:[
+    {id:1,text:"Kevés örömöt okoztak azok a dolgok, amelyeket korábban élvezett."},
+    {id:2,text:"Szomorúnak, nyomottnak vagy reménytelennek érezte magát."},
+    {id:3,text:"Nehézsége volt elaludni, átaludni, vagy túl sokat aludt."},
+    {id:4,text:"Fáradtnak érezte magát, kevés energiája volt."},
+    {id:5,text:"Rossz étvágya volt, vagy túl sokat evett."},
+    {id:6,text:"Rosszul érezte magát önmagával kapcsolatban — kudarcot vallott, vagy cserben hagyta önmagát/családját."},
+    {id:7,text:"Nehéz volt koncentrálni dolgokra, pl. újságolvasásra vagy TV-nézésre."},
+    {id:8,text:"Annyira lassan mozgott/beszélt, hogy mások észrevették? Vagy épp fordítva — nyugtalan, feszült volt."},
+    {id:9,text:"Gondolatai voltak arról, hogy jobb lenne meghalni, vagy hogy megbántaná önmagát.",crisis:true}
+  ],
+  cutoffs:[{max:4,label:'Minimális',color:'#1E8449'},{max:9,label:'Enyhe',color:'#D4AC0D'},{max:14,label:'Közepes',color:'#E67E22'},{max:19,label:'Közepesen súlyos',color:'#C0392B'},{max:27,label:'Súlyos',color:'#922B21'}],
+  maxScore:27,
+  interpretation:{
+    low:'A válaszaid alapján jelenleg nem tapasztalsz számottevő depresszív tüneteket.',
+    mild:'Enyhe depresszív tünetek jelezhetők. Érdemes figyelni a hangulat változásaira.',
+    moderate:'Közepes szintű depresszív tünetek — pszichológussal való konzultáció ajánlott.',
+    high:'Súlyos depresszív tünetek — mielőbb keresd fel pszichiátert vagy pszichológust.'
+  }
+},
+{
+  id:'gad7', title:'Szorongás', subtitle:'GAD-7',
+  icon:'😰', color:'#E67E22', itemCount:7, estMinutes:2, hasGender:false,
+  scaleLabels:['Egyáltalán nem','Néhány napon','A napok felén','Szinte minden nap'],
+  intro:'A GAD-7 az általános szorongásos zavar szűrésére szolgáló 7 tételes kérdőív.',
+  disclaimer:'Validált szűrőeszköz. A diagnózist kizárólag szakember állíthatja fel.',
+  items:[
+    {id:1,text:"Idegesnek, szorongónak vagy feszültnek érezte magát."},
+    {id:2,text:"Nem tudta abbahagyni vagy kontrollálni az aggódást."},
+    {id:3,text:"Túlzottan aggódott különböző dolgok miatt."},
+    {id:4,text:"Nehéz volt ellazulnia."},
+    {id:5,text:"Annyira nyugtalan volt, hogy nehéz volt nyugton maradnia."},
+    {id:6,text:"Könnyen bosszússá vagy ingerlékennyé vált."},
+    {id:7,text:"Úgy érezte, valami szörnyű fog történni."}
+  ],
+  cutoffs:[{max:4,label:'Minimális',color:'#1E8449'},{max:9,label:'Enyhe',color:'#D4AC0D'},{max:14,label:'Közepes',color:'#E67E22'},{max:21,label:'Súlyos',color:'#C0392B'}],
+  maxScore:21,
+  interpretation:{low:'Minimális szorongás.',mild:'Enyhe szorongásos tünetek.',moderate:'Közepes szorongás — pszichológiai konzultáció ajánlott.',high:'Súlyos szorongás — szakember felkeresése szükséges.'}
+},
+{
+  id:'eat26', title:'Étkezési zavar', subtitle:'EAT-26',
+  icon:'🍽️', color:'#7D3C98', itemCount:26, estMinutes:8, hasGender:false,
+  scaleLabels:['Mindig','Általában','Gyakran','Néha','Ritkán','Soha'],
+  intro:'Az EAT-26 az étkezési zavarok szűrésére szolgáló 26 tételes kérdőív (Garner et al., 1982).',
+  disclaimer:'≥20 pont felett étkezési zavar kockázata fennáll. Kérjük, forduljon szakemberhez.',
+  items:[
+    {id:1,text:"Rettegek attól, hogy túlsúlyos legyek."},
+    {id:2,text:"Kerülöm az evést, még ha éhes vagyok is."},
+    {id:3,text:"Állandóan az ételre gondolok."},
+    {id:4,text:"Zabálási rohamaim vannak, és úgy érzem, nem tudom megállítani."},
+    {id:5,text:"Apró falatokra vágom az ételt."},
+    {id:6,text:"Tisztában vagyok az ételek kalóriatartalmával."},
+    {id:7,text:"Különösen kerülöm a magas szénhidráttartalmú ételeket."},
+    {id:8,text:"Úgy érzem, mások szeretnék, ha többet ennék."},
+    {id:9,text:"Hányok evés után."},
+    {id:10,text:"Nagyon bűnösnek érzem magam evés után."},
+    {id:11,text:"Megszállottan gondolok arra, hogy vékonyabb legyek."},
+    {id:12,text:"Sportoláskor az elégetett kalóriákra gondolok."},
+    {id:13,text:"Mások azt gondolják, hogy túl sovány vagyok."},
+    {id:14,text:"Foglalkoztat a gondolat, hogy zsír van a testemen."},
+    {id:15,text:"Tovább tart az étkezésem, mint másoknak."},
+    {id:16,text:"Kerülöm a cukortartalmú ételeket."},
+    {id:17,text:"Diétás ételeket fogyasztok."},
+    {id:18,text:"Úgy érzem, az étel uralja az életemet."},
+    {id:19,text:"Kontrollálom magam az étkezés körül."},
+    {id:20,text:"Nyomást érzek másoktól, hogy egyem."},
+    {id:21,text:"Túl sok időt és gondolatot fordítok az ételre."},
+    {id:22,text:"Kellemetlen érzésem van édes ételek evése után."},
+    {id:23,text:"Diétázom."},
+    {id:24,text:"Szeretem az üres gyomor érzését."},
+    {id:25,text:"Élvezem az új, gazdag ételek kipróbálását.",reversed:true},
+    {id:26,text:"Hányinger fog el evés után."}
+  ],
+  cutoffs:[{max:19,label:'Normál tartomány',color:'#1E8449'},{max:100,label:'Kockázati zónában',color:'#C0392B'}],
+  maxScore:78,
+  interpretation:{low:'Nem jeleznek az étkezési szokásaid kockázatot.',high:'Az eredmény étkezési zavar lehetőségét jelzi. Szakember felkeresése ajánlott.'}
+},
+{
+  id:'ocir', title:'OCD', subtitle:'OCI-R',
+  icon:'🔄', color:'#1E8BC3', itemCount:18, estMinutes:5, hasGender:false,
+  scaleLabels:['Egyáltalán nem','Kissé','Mérsékelten','Nagyon','Rendkívül'],
+  intro:'Az OCI-R (Obsessive-Compulsive Inventory) 18 tételes kérdőív az obszesszív-kompulzív tünetek mérésére.',
+  disclaimer:'≥21 pont felett klinikusan szignifikáns OCD tünetek valószínűek.',
+  items:[
+    {id:1,text:"Felhalmozok dolgokat, amelyekre nincs szükségem.",sub:'hoarding'},
+    {id:2,text:"Ismételten ellenőrzöm az ajtókat, ablakokat, fiókokat stb.",sub:'checking'},
+    {id:3,text:"Idegesít, ha a dolgok nincsenek rendben elrendezve.",sub:'ordering'},
+    {id:4,text:"Kényszert érzek számolásra bizonyos dolgok közben.",sub:'neutralizing'},
+    {id:5,text:"Kellemetlennek tartom, ha megérintem egy tárgyat, amit más is megérintett.",sub:'washing'},
+    {id:6,text:"Nehéz kontrollálnom a kellemetlen gondolataimat.",sub:'obsessing'},
+    {id:7,text:"Több dolgot gyűjtök össze, mint amennyire szükségem van.",sub:'hoarding'},
+    {id:8,text:"Ismételten ellenőrzöm a gázt, a vizet és a villanykapcsolókat.",sub:'checking'},
+    {id:9,text:"Felháborodom, ha mások megváltoztatják a dolgaim elrendezését.",sub:'ordering'},
+    {id:10,text:"Kellemetlen gondolatok ellenében cselekvéseket végzek.",sub:'neutralizing'},
+    {id:11,text:"Túl sokáig mosakszom vagy zuhanyzom.",sub:'washing'},
+    {id:12,text:"Visszatérő, kellemetlen gondolataim vannak.",sub:'obsessing'},
+    {id:13,text:"Felesleges dolgokat tartogatok, amelyeket el kellene dobnom.",sub:'hoarding'},
+    {id:14,text:"Aggódom, hogy nem ellenőriztem elég alaposan valamit.",sub:'checking'},
+    {id:15,text:"Felidegesít, ha a dolgok nincsenek a megfelelő sorrendben.",sub:'ordering'},
+    {id:16,text:"Nehéz kontrolálnom a nem kívánt gondolataimat.",sub:'neutralizing'},
+    {id:17,text:"Szükségét érzem a kézmosásnak olyan dolgok megérintése után, amelyeket piszkosnak tartok.",sub:'washing'},
+    {id:18,text:"Gyakran kényszeres, kellemetlen gondolataim vannak.",sub:'obsessing'}
+  ],
+  subscales:[
+    {id:'washing',name:'Mosás',items:[5,11,17],color:'#1E8BC3'},
+    {id:'obsessing',name:'Obszesszió',items:[6,12,18],color:'#C0392B'},
+    {id:'hoarding',name:'Felhalmozás',items:[1,7,13],color:'#E67E22'},
+    {id:'ordering',name:'Rendrakás',items:[3,9,15],color:'#7D3C98'},
+    {id:'checking',name:'Ellenőrzés',items:[2,8,14],color:'#D4AC0D'},
+    {id:'neutralizing',name:'Semlegesítés',items:[4,10,16],color:'#1E8449'}
+  ],
+  cutoffs:[{max:20,label:'Normál tartomány',color:'#1E8449'},{max:100,label:'Klinikusan szignifikáns',color:'#C0392B'}],
+  maxScore:72,
+  interpretation:{low:'Az OCD tüneteid nem érik el a klinikai küszöböt.',high:'Klinikusan szignifikáns OCD tünetek — szakember felkeresése ajánlott.'}
+},
+{
+  id:'pcl5', title:'PTSD', subtitle:'PCL-5',
+  icon:'⚡', color:'#922B21', itemCount:20, estMinutes:7, hasGender:false,
+  scaleLabels:['Egyáltalán nem','Kissé','Mérsékelten','Meglehetősen','Rendkívül'],
+  intro:'A PCL-5 a poszttraumás stressz zavar (PTSD) szűrésére szolgáló 20 tételes kérdőív (DSM-5 alapú).',
+  disclaimer:'≥33 pont felett valószínűsíthető a PTSD. Diagnózis kizárólag szakembertől.',
+  items:[
+    {id:1,text:"Ismétlődő, zavaró emlékek, gondolatok vagy képek egy stresszes élményről.",sub:'B'},
+    {id:2,text:"Ismétlődő, zavaró álmok egy stresszes élményről.",sub:'B'},
+    {id:3,text:"Hirtelen úgy cselekedett vagy érzett, mintha a stresszes élmény újra megtörténne.",sub:'B'},
+    {id:4,text:"Nagyon feldúlt lett, ha valami emlékeztette a stresszes élményre.",sub:'B'},
+    {id:5,text:"Erős testi reakciók (szívdobogás, légszomj, izzadás), ha valami emlékeztette.",sub:'B'},
+    {id:6,text:"Igyekezett elkerülni a stresszes élménnyel kapcsolatos gondolatokat és érzéseket.",sub:'C'},
+    {id:7,text:"Igyekezett elkerülni a tevékenységeket, helyzeteket, amelyek emlékeztették.",sub:'C'},
+    {id:8,text:"Nehézséget okozott a stresszes élmény fontos részeinek felidézése.",sub:'D'},
+    {id:9,text:"Erősen negatív meggyőződései önmagáról, másokról vagy a világról.",sub:'D'},
+    {id:10,text:"Önmagát vagy másokat hibáztatta a stresszes eseményért.",sub:'D'},
+    {id:11,text:"Erős negatív érzések: félelem, borzalom, düh, bűntudat vagy szégyen.",sub:'D'},
+    {id:12,text:"Elvesztette érdeklődését korábban élvezett tevékenységek iránt.",sub:'D'},
+    {id:13,text:"Elszakítottnak érezte magát másoktól.",sub:'D'},
+    {id:14,text:"Nehézséget okozott pozitív érzelmek megélése.",sub:'D'},
+    {id:15,text:"Ingerlékenység, dühkitörések vagy agresszív viselkedés.",sub:'E'},
+    {id:16,text:"Kockázatos vagy önsorsrontó viselkedés.",sub:'E'},
+    {id:17,text:"Túlzott éberség, óvatosság, résen állás.",sub:'E'},
+    {id:18,text:"Könnyen megijedt, túlzottan megrémült.",sub:'E'},
+    {id:19,text:"Koncentrációs nehézségek.",sub:'E'},
+    {id:20,text:"Elalvási vagy átalvási nehézségek.",sub:'E'}
+  ],
+  subscales:[
+    {id:'B',name:'Behatolás (újraélés)',items:[1,2,3,4,5],color:'#C0392B'},
+    {id:'C',name:'Kerülés',items:[6,7],color:'#E67E22'},
+    {id:'D',name:'Negatív kogníciók',items:[8,9,10,11,12,13,14],color:'#1A5276'},
+    {id:'E',name:'Hiperéberség',items:[15,16,17,18,19,20],color:'#7D3C98'}
+  ],
+  cutoffs:[{max:32,label:'Küszöb alatti',color:'#1E8449'},{max:100,label:'Valószínű PTSD',color:'#C0392B'}],
+  maxScore:80,
+  interpretation:{low:'A PTSD tünetek nem érik el a klinikai küszöböt.',high:'Az eredmény PTSD-t valószínűsít. Trauma-fókuszú terápia (EMDR, CPT) ajánlott.'}
+},
+{
+  id:'pid5', title:'Személyiségzavar', subtitle:'PID-5 Brief',
+  icon:'🪞', color:'#7D3C98', itemCount:25, estMinutes:7, hasGender:false,
+  scaleLabels:['Teljesen hamis','Inkább hamis','Inkább igaz','Teljesen igaz'],
+  intro:'A PID-5 Brief a DSM-5 szerinti személyiségzavar-dimenziók mérésére szolgáló 25 tételes kérdőív.',
+  disclaimer:'Dimenzionális profilt ad — nem kategorikus diagnózist. Tartomány-átlag ≥2 = emelt kockázat.',
+  items:[
+    {id:1,text:"Mások szerint meggondolatlan vagyok.",dom:'DI'},
+    {id:2,text:"Úgy érzem, teljesen ösztönösen cselekszem.",dom:'DI'},
+    {id:3,text:"Nem tudok megállni a kapkodó döntéshozatalnál, még ha tudom is, hogy nem kellene.",dom:'DI'},
+    {id:4,text:"Nem szívesen közeledek az emberekhez.",dom:'DE'},
+    {id:5,text:"Mindent kipróbálok legalább egyszer.",dom:'DI'},
+    {id:6,text:"Olyat teszek, amit mások megdöbbentőnek találnak.",dom:'DI'},
+    {id:7,text:"Néha úgy érzem, kívülről figyelem saját magamat.",dom:'PS'},
+    {id:8,text:"A félelem irányítja az életemet.",dom:'NA'},
+    {id:9,text:"Szinte mindenért aggódom.",dom:'NA'},
+    {id:10,text:"Könnyen felindulok, sokszor semmi ok nélkül.",dom:'NA'},
+    {id:11,text:"Jobban félek attól, hogy egyedül maradok, mint bármi mástól.",dom:'NA'},
+    {id:12,text:"Sokszor úgy érzem, semmi, amit teszek, nem számít.",dom:'PS'},
+    {id:13,text:"Inkább lennék egyedül, mint nagy csoportban.",dom:'DE'},
+    {id:14,text:"Távolságot tartok az emberektől.",dom:'DE'},
+    {id:15,text:"Könnyen megijesztenek a dolgok.",dom:'NA'},
+    {id:16,text:"Idegenek között csendben maradok.",dom:'DE'},
+    {id:17,text:"Nem törődöm mások érzéseivel.",dom:'AN'},
+    {id:18,text:"Kevés értéket nyújtok a világnak.",dom:'DE'},
+    {id:19,text:"Olyat mondok, amit az emberek hallani akarnak, hogy jobban járjak.",dom:'AN'},
+    {id:20,text:"Sokszor úgy érzem, amit teszek, értéktelen.",dom:'AN'},
+    {id:21,text:"A körülöttem lévő dolgok néha irreálisnak tűnnek.",dom:'PS'},
+    {id:22,text:"Keresem a lehetőségeket, hogy mások észrevegyenek.",dom:'AN'},
+    {id:23,text:"Voltak már elképzeléseim, amelyek valódinak tűntek, de nem azok voltak.",dom:'PS'},
+    {id:24,text:"Nem értem, miért bosszantanak fel másokat bizonyos dolgok.",dom:'PS'},
+    {id:25,text:"Néha olyat mondok vagy teszek, amit utólag nagyon udvariatlannak tartok.",dom:'AN'}
+  ],
+  subscales:[
+    {id:'NA',name:'Negatív affektivitás',items:[8,9,10,11,15],color:'#C0392B'},
+    {id:'DE',name:'Távolságtartás',items:[4,13,14,16,18],color:'#1A5276'},
+    {id:'AN',name:'Antagonizmus',items:[17,19,20,22,25],color:'#E67E22'},
+    {id:'DI',name:'Dezinhibíció',items:[1,2,3,5,6],color:'#D4AC0D'},
+    {id:'PS',name:'Pszichoticizmus',items:[7,12,21,23,24],color:'#7D3C98'}
+  ],
+  cutoffs:[{max:100,label:'Dimenzionális profil',color:'#1A5276'}],
+  maxScore:75,
+  interpretation:{low:'Nincs kiugró személyiségterület.',high:'Egy vagy több személyiség-dimenzióban emelt értékek.'}
+},
+{
+  id:'mdq', title:'Bipoláris zavar', subtitle:'MDQ',
+  icon:'🌗', color:'#D4AC0D', itemCount:15, estMinutes:4, hasGender:false,
+  scaleLabels:['Nem','Igen'],
+  intro:'A Mood Disorder Questionnaire (MDQ) a bipoláris spektrum szűrésére szolgáló kérdőív.',
+  disclaimer:'A pozitív szűrő pszichiátriai értékelést indikál — nem diagnózis.',
+  items:[
+    {id:1,text:"Annyira jól érezte magát vagy felpörgött, hogy mások azt gondolták, nem a szokásos Ön?",part:1},
+    {id:2,text:"Annyira ingerlékeny volt, hogy kiabált vagy veszekedett?",part:1},
+    {id:3,text:"Sokkal magabiztosabbnak érezte magát a szokásosnál?",part:1},
+    {id:4,text:"Sokkal kevesebbet aludt a szokásosnál, és mégsem hiányzott?",part:1},
+    {id:5,text:"Sokkal beszédesebb volt, vagy gyorsabban beszélt a szokásosnál?",part:1},
+    {id:6,text:"A gondolatai száguldottak, nem tudta lelassítani az elméjét?",part:1},
+    {id:7,text:"Annyira könnyen elterelte a figyelme, hogy nehéz volt koncentrálni?",part:1},
+    {id:8,text:"Sokkal több energiája volt a szokásosnál?",part:1},
+    {id:9,text:"Sokkal aktívabb volt, vagy többet csinált a szokásosnál?",part:1},
+    {id:10,text:"Sokkal társaságibb volt (pl. éjjel telefonált ismerősöknek)?",part:1},
+    {id:11,text:"Sokkal jobban érdekelte a szex, mint szokott?",part:1},
+    {id:12,text:"Olyat tett, ami szokatlan volt, vagy amit mások kockázatosnak tartottak?",part:1},
+    {id:13,text:"A pénzköltés problémát okozott Önnek vagy családjának?",part:1},
+    {id:14,text:"Ezek közül több előfordult-e egyidejűleg, ugyanabban az időszakban?",part:2},
+    {id:15,text:"Mekkora problémát okoztak ezek? (0=Semmit, 1=Enyhét, 2=Közepest, 3=Súlyosat)",part:3,scaleOverride:['Semmit','Enyhét','Közepest','Súlyosat']}
+  ],
+  cutoffs:[{max:0,label:'Negatív szűrő',color:'#1E8449'},{max:1,label:'Pozitív szűrő',color:'#C0392B'}],
+  maxScore:1,
+  interpretation:{low:'Az MDQ szűrő nem jelez bipoláris spektrum zavart.',high:'Pozitív szűrő — pszichiátriai értékelés szükséges az antidepresszáns kezelés megkezdése előtt.'}
+},
+{
+  id:'audit', title:'Alkoholhasználat', subtitle:'AUDIT',
+  icon:'🍷', color:'#1E8449', itemCount:10, estMinutes:3, hasGender:false,
+  scaleLabels:null,
+  intro:'Az AUDIT (WHO) az alkoholhasználat kockázatának felmérésére szolgáló 10 tételes kérdőív.',
+  disclaimer:'≥8 pont: kockázatos, ≥16: káros, ≥20: függőség valószínű.',
+  items:[
+    {id:1,text:"Milyen gyakran fogyaszt alkoholtartalmú italt?",opts:['Soha','Havonta 1x vagy ritkábban','Havonta 2-4x','Hetente 2-3x','Hetente 4x vagy többször']},
+    {id:2,text:"Amikor iszik, általában hány egység alkoholt fogyaszt?",opts:['1-2','3-4','5-6','7-9','10 vagy több']},
+    {id:3,text:"Milyen gyakran fogyaszt 6 vagy több egység alkoholt egy alkalommal?",opts:['Soha','Ritkábban mint havonta','Havonta','Hetente','Naponta vagy szinte naponta']},
+    {id:4,text:"Az elmúlt évben hányszor tapasztalta, hogy miután elkezdett inni, nem tudta abbahagyni?",opts:['Soha','Ritkábban mint havonta','Havonta','Hetente','Naponta vagy szinte naponta']},
+    {id:5,text:"Az elmúlt évben hányszor nem tette meg, amit normálisan elvártak Öntől, az ivás miatt?",opts:['Soha','Ritkábban mint havonta','Havonta','Hetente','Naponta vagy szinte naponta']},
+    {id:6,text:"Hányszor volt szüksége reggeli italra, hogy működjön egy erős ivászat után?",opts:['Soha','Ritkábban mint havonta','Havonta','Hetente','Naponta vagy szinte naponta']},
+    {id:7,text:"Hányszor érzett bűntudatot vagy lelkifurdalást ivás után?",opts:['Soha','Ritkábban mint havonta','Havonta','Hetente','Naponta vagy szinte naponta']},
+    {id:8,text:"Hányszor nem tudta felidézni, mi történt az előző este az ivás miatt?",opts:['Soha','Ritkábban mint havonta','Havonta','Hetente','Naponta vagy szinte naponta']},
+    {id:9,text:"Megsérült-e Ön vagy más személy az Ön ivása következtében?",opts:['Nem','Igen, de nem az elmúlt évben','Igen, az elmúlt évben']},
+    {id:10,text:"Aggódott-e rokon, barát vagy orvos az Ön alkoholfogyasztása miatt?",opts:['Nem','Igen, de nem az elmúlt évben','Igen, az elmúlt évben']}
+  ],
+  cutoffs:[{max:7,label:'Alacsony kockázat',color:'#1E8449'},{max:15,label:'Kockázatos',color:'#D4AC0D'},{max:19,label:'Káros',color:'#E67E22'},{max:40,label:'Függőség valószínű',color:'#C0392B'}],
+  maxScore:40,
+  interpretation:{low:'Alacsony kockázatú alkoholfogyasztás.',mild:'Kockázatos alkoholfogyasztás — csökkentés ajánlott.',moderate:'Káros alkoholfogyasztás — rövid intervenció javasolt.',high:'Függőség valószínű — addiktológiai konzultáció szükséges.'}
+},
+{
+  id:'isi', title:'Alvászavar', subtitle:'ISI',
+  icon:'🌙', color:'#2E4270', itemCount:7, estMinutes:2, hasGender:false,
+  scaleLabels:['Egyáltalán nem','Enyhén','Közepesen','Nagyon','Rendkívül'],
+  intro:'Az Insomnia Severity Index (ISI) az alvászavar súlyosságának mérésére szolgáló 7 tételes kérdőív.',
+  disclaimer:'Validált szűrőeszköz. ≥15 pont: közepes, ≥22: súlyos inszomnia.',
+  items:[
+    {id:1,text:"Elalvási nehézség súlyossága."},
+    {id:2,text:"Átalvási nehézség (gyakori ébredések)."},
+    {id:3,text:"Túl korai felébredés problémája."},
+    {id:4,text:"Mennyire elégedett jelenlegi alvásmintájával?"},
+    {id:5,text:"Az alvásprobléma mennyire zavarja a nappali működését?"},
+    {id:6,text:"Mások mennyire veszik észre az alvásminőség romlását az Ön esetében?"},
+    {id:7,text:"Mennyire aggódik az alvásproblémája miatt?"}
+  ],
+  cutoffs:[{max:7,label:'Nincs inszomnia',color:'#1E8449'},{max:14,label:'Küszöbalatti',color:'#D4AC0D'},{max:21,label:'Közepes inszomnia',color:'#E67E22'},{max:28,label:'Súlyos inszomnia',color:'#C0392B'}],
+  maxScore:28,
+  interpretation:{low:'Nincs klinikailag jelentős alvászavar.',mild:'Küszöbalatti alvászavar — alváshigiénia javítása ajánlott.',moderate:'Közepes inszomnia — alvásspecialista konzultáció ajánlott.',high:'Súlyos inszomnia — szakember felkeresése szükséges.'}
+},
+{
+  id:'lsas', title:'Szociális szorongás', subtitle:'LSAS',
+  icon:'👥', color:'#1A5276', itemCount:24, estMinutes:10, hasGender:false, isDual:true,
+  scaleLabels:['Nincs','Enyhe','Közepes','Súlyos'],
+  scaleLabels2:['Soha','Néha','Gyakran','Általában'],
+  intro:'A Liebowitz Social Anxiety Scale (LSAS) 24 szociális helyzetet értékel félelem és kerülés szempontjából.',
+  disclaimer:'≥56: közepes, ≥66: kifejezett, ≥81: súlyos szociális szorongás.',
+  items:[
+    {id:1,text:"Telefonálás nyilvános helyen."},
+    {id:2,text:"Részvétel kis csoportos tevékenységben."},
+    {id:3,text:"Étkezés nyilvános helyen."},
+    {id:4,text:"Ivás mások társaságában nyilvánosan."},
+    {id:5,text:"Beszélgetés tekintélyes személlyel."},
+    {id:6,text:"Előadás, szereplés közönség előtt."},
+    {id:7,text:"Bulira, partira menés."},
+    {id:8,text:"Munka végzése megfigyelés közben."},
+    {id:9,text:"Írás mások szeme láttára."},
+    {id:10,text:"Ismeretlen személy felhívása telefonon."},
+    {id:11,text:"Beszélgetés kevéssé ismert személlyel."},
+    {id:12,text:"Ismeretlenekkel való találkozás."},
+    {id:13,text:"Nyilvános mosdó használata."},
+    {id:14,text:"Belépés egy szobába, ahol már ülnek mások."},
+    {id:15,text:"A figyelem középpontjába kerülni."},
+    {id:16,text:"Felszólalás megbeszélésen."},
+    {id:17,text:"Vizsga, képességpróba."},
+    {id:18,text:"Egyet nem értés kifejezése ismeretlenekkel."},
+    {id:19,text:"Ismeretlenek szemébe nézni."},
+    {id:20,text:"Beszámoló tartása csoport előtt."},
+    {id:21,text:"Ismerkedési kísérlet."},
+    {id:22,text:"Áru visszavitele üzletbe."},
+    {id:23,text:"Vendégek fogadása, parti szervezése."},
+    {id:24,text:"Nyomásgyakorló eladónak ellenállni."}
+  ],
+  cutoffs:[{max:55,label:'Enyhe vagy normál',color:'#1E8449'},{max:65,label:'Közepes',color:'#D4AC0D'},{max:80,label:'Kifejezett',color:'#E67E22'},{max:95,label:'Súlyos',color:'#C0392B'},{max:144,label:'Nagyon súlyos',color:'#922B21'}],
+  maxScore:144,
+  interpretation:{low:'Minimális szociális szorongás.',mild:'Közepes szociális szorongás.',moderate:'Kifejezett szociális szorongás — CBT ajánlott.',high:'Súlyos szociális szorongás — terápia és esetleg gyógyszeres kezelés.'}
+},
+{
+  id:'msibpd', title:'Borderline', subtitle:'MSI-BPD',
+  icon:'💔', color:'#C0392B', itemCount:10, estMinutes:3, hasGender:false,
+  scaleLabels:['Nem','Igen'],
+  intro:'A McLean Screening Instrument (MSI-BPD) a borderline személyiségzavar szűrésére szolgáló 10 tételes kérdőív.',
+  disclaimer:'≥7 ponttal szűrőpozitív BPD. Diagnózishoz szakorvosi vizsgálat szükséges.',
+  items:[
+    {id:1,text:"Volt-e olyan közeli kapcsolata, amelyet sok veszekedés vagy ismételt szakítás terhelt?"},
+    {id:2,text:"Szándékosan bántotta-e már fizikailag önmagát (megütötte, megvágta, megégette magát)?"},
+    {id:3,text:"Volt-e legalább két területen impulzivitási probléma (zabálás, költekezés, ivás, szexuális túlzás)?"},
+    {id:4,text:"Volt-e a hangulata rendkívül ingadozó?"},
+    {id:5,text:"Érezte-e tartósan nagyon dühösnek magát, vagy viselkedett sokszor dühösen?"},
+    {id:6,text:"Rendszeresen bizalmatlan volt másokkal szemben?"},
+    {id:7,text:"Érezte magát sokszor a valóságtól elszakadtnak, vagy mintha a dolgok nem lennének valóságosak?"},
+    {id:8,text:"Érzett-e tartósan belső ürességet?"},
+    {id:9,text:"Bizonytalan volt abban, hogy ki Ön valójában, vagy mi a személyisége?"},
+    {id:10,text:"Tett-e kétségbeesett erőfeszítéseket az elhagyatottság elkerülésére?"}
+  ],
+  cutoffs:[{max:6,label:'Negatív szűrő',color:'#1E8449'},{max:10,label:'Szűrőpozitív BPD',color:'#C0392B'}],
+  maxScore:10,
+  interpretation:{low:'A BPD szűrő nem pozitív.',high:'Szűrőpozitív BPD — részletes személyiségdiagnosztikai vizsgálat javasolt.'}
+}
+];
+
+/* ══════════════════════════════════════════════════════════
+   SECTION 3: COMORBIDITY PATTERNS
+══════════════════════════════════════════════════════════ */
+const COMORBIDITY_PATTERNS = [
+  {id:'audhd', needs:['adhd_aut'], check:r=>r.adhd_aut&&r.adhd_aut.adhdPct>=60&&r.adhd_aut.autPct>=60, severity:'orange', title:'AuDHD mintázat', text:'Autizmus és ADHD együttes jelenléte lehetséges — átfogó neuropszichológiai értékelés javasolt.'},
+  {id:'trauma_dep', needs:['pcl5','phq9'], check:r=>r.pcl5&&r.pcl5.total>=33&&r.phq9&&r.phq9.total>=10, severity:'orange', title:'Trauma + depresszió', text:'Depresszív tünetek traumatikus háttérrel — trauma-fókuszú interjú ajánlott a kezelési prioritás meghatározásához.'},
+  {id:'bipolar_dep', needs:['mdq','phq9'], check:r=>r.mdq&&r.mdq.positive&&r.phq9&&r.phq9.total>=10, severity:'red', title:'Bipoláris vs. depresszió', text:'Bipoláris spektrum és depresszív tünetek együtt — pszichiátriai konzultáció szükséges antidepresszáns kezelés előtt.'},
+  {id:'ptsd_bpd', needs:['pcl5','msibpd'], check:r=>r.pcl5&&r.pcl5.total>=33&&r.msibpd&&r.msibpd.total>=7, severity:'orange', title:'Komplex PTSD / BPD átfedés', text:'A PTSD és BPD tünetek átfednek — komplex trauma szempontú értékelés javasolt.'},
+  {id:'soc_ocd', needs:['lsas','ocir'], check:r=>r.lsas&&r.lsas.total>=56&&r.ocir&&r.ocir.total>=21, severity:'yellow', title:'Szociális szorongás + OCD', text:'Szociális szorongás OCD-jellemzőkkel — ERP és szociális készségfejlesztés kombinálva.'},
+  {id:'eat_dep', needs:['eat26','phq9'], check:r=>r.eat26&&r.eat26.total>=20&&r.phq9&&r.phq9.total>=10, severity:'orange', title:'Evészavar + depresszió', text:'Evészavar tünetei depresszív tünetekkel — integrált kezelés javasolt.'},
+  {id:'alcohol_anx', needs:['audit','gad7'], check:r=>r.audit&&r.audit.total>=8&&r.gad7&&r.gad7.total>=10, severity:'orange', title:'Alkohol + szorongás', text:'Kockázatos alkoholhasználat szorongással — az alkohol szorongáscsillapítóként való használata lehetséges.'},
+  {id:'sleep_adhd', needs:['isi','adhd_aut'], check:r=>r.isi&&r.isi.total>=15&&r.adhd_aut&&r.adhd_aut.adhdPct>=50, severity:'yellow', title:'Alvászavar + ADHD', text:'Súlyos alvászavar ADHD-val — párhuzamos kezelés szükséges.'}
+];
+
+/* ══════════════════════════════════════════════════════════
+   SECTION 4: STATE
+══════════════════════════════════════════════════════════ */
+let hubMode = localStorage.getItem('hub_mode') || 'self';
+let hubClients = JSON.parse(localStorage.getItem('hub_clients') || '[]');
+let activeClientIdx = null;
+let currentQId = null;
+let currentPage = 0;
+let hubAnswers = JSON.parse(localStorage.getItem('hub_self_answers') || '{}');
+let hubResults = JSON.parse(localStorage.getItem('hub_results') || '{}');
+let adhd_gender = null;
+let currentView = 'hub';
+let currentFilteredQs = [];
+const PAGE_SIZE = 6;
+
+/* ══════════════════════════════════════════════════════════
+   SECTION 5: LOCALSTORAGE
+══════════════════════════════════════════════════════════ */
+function saveState(){
+  localStorage.setItem('hub_mode', hubMode);
+  localStorage.setItem('hub_self_answers', JSON.stringify(hubAnswers));
+  localStorage.setItem('hub_results', JSON.stringify(hubResults));
+  localStorage.setItem('hub_clients', JSON.stringify(hubClients));
+}
+let saveTimer=null;
+function autoSave(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{
+    saveState();
+    const b=document.getElementById('autosaveBadge');
+    b.classList.add('show');setTimeout(()=>b.classList.remove('show'),1200);
+  },800);
+}
+function getAnswers(qId){
+  if(hubMode==='clinical'&&activeClientIdx!==null){
+    const c=hubClients[activeClientIdx];
+    if(!c.answers) c.answers={};
+    if(!c.answers[qId]) c.answers[qId]={};
+    return c.answers[qId];
+  }
+  if(!hubAnswers[qId]) hubAnswers[qId]={};
+  return hubAnswers[qId];
+}
+function getResults(){
+  if(hubMode==='clinical'&&activeClientIdx!==null){
+    const c=hubClients[activeClientIdx];
+    if(!c.results) c.results={};
+    return c.results;
+  }
+  return hubResults;
+}
+
+/* ══════════════════════════════════════════════════════════
+   SECTION 6: NAVIGATION
+══════════════════════════════════════════════════════════ */
+function showView(id){
+  document.querySelectorAll('.hub-view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  currentView=id;
+  const back=document.getElementById('headerBack');
+  back.style.display=id==='hub'?'none':'block';
+  document.getElementById('progressFill').style.width=id==='questionnaire'?calcProgress()+'%':'0%';
+  if(id==='hub'){document.getElementById('headerTitle').textContent='Mentális Egészség Hub';document.getElementById('headerSub').textContent='Klinikai szűrőkérdőívek';}
+  if(id==='dashboard'){document.getElementById('headerTitle').textContent='Dashboard';document.getElementById('headerSub').textContent='Összesített eredmények';}
+  if(id==='clients'){document.getElementById('headerTitle').textContent='Kliensek';document.getElementById('headerSub').textContent='Kliens-kezelő';}
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function goBack(){
+  if(currentView==='results'||currentView==='questionnaire'||currentView==='gender') showView('hub');
+  else if(currentView==='dashboard'||currentView==='clients') showView('hub');
+  else showView('hub');
+  renderHub();
+}
+function calcProgress(){
+  if(!currentQId) return 0;
+  const ans=getAnswers(currentQId);
+  const total=currentFilteredQs.length||(getQ(currentQId).itemCount);
+  const done=Object.keys(ans).length;
+  return Math.round(done/total*100);
+}
+function getQ(id){ return QUESTIONNAIRES.find(q=>q.id===id); }
+function updateProgress(){
+  document.getElementById('progressFill').style.width=calcProgress()+'%';
+}
+
+/* ══════════════════════════════════════════════════════════
+   SECTION 7: HUB RENDERER
+══════════════════════════════════════════════════════════ */
+function renderHub(){
+  const res=getResults();
+  let html=`<div class="hub-hero"><h1>Mentális Egészség Hub</h1><p>12 validált klinikai szűrőkérdőív</p>
+    <div class="hub-mode-toggle">
+      <button class="hub-mode-btn ${hubMode==='self'?'active':''}" onclick="setMode('self')">Önismeret</button>
+      <button class="hub-mode-btn ${hubMode==='clinical'?'active':''}" onclick="setMode('clinical')">Klinikus</button>
+    </div></div>`;
+  if(hubMode==='clinical'){
+    const cn=activeClientIdx!==null?hubClients[activeClientIdx].name:'Nincs kiválasztva';
+    html+=`<div class="client-bar"><span class="client-bar-name">Kliens: ${cn}</span>
+      <button class="client-bar-btn" onclick="showView('clients');renderClients()">Kliensek</button></div>`;
+  }
+  html+=`<div class="hub-disclaimer">Ez az alkalmazás szűrőkérdőíveket tartalmaz — az eredmények <strong>nem helyettesítik</strong> a szakorvosi diagnózist. Ha krízisben van, hívja a <strong>116 123</strong> segélyvonalat.</div>`;
+  const completed=QUESTIONNAIRES.filter(q=>res[q.id]).length;
+  if(completed>=2){
+    html+=`<button class="hub-dash-btn" onclick="showView('dashboard');renderDashboard()">📊 Dashboard — ${completed}/12 kitöltve</button>`;
+  }
+  html+=`<div class="hub-grid">`;
+  QUESTIONNAIRES.forEach(q=>{
+    const r=res[q.id];
+    let scoreHtml='';
+    if(r){
+      const lbl=r.label||'Kitöltve';
+      const col=r.color||'#1E8449';
+      scoreHtml=`<div class="hub-card-score" style="background:${col}22;color:${col}">${r.scoreText||lbl}</div>`;
+    }
+    html+=`<div class="hub-card" style="border-top-color:${q.color}" onclick="startQ('${q.id}')">
+      <div class="hub-card-body">
+        <div class="hub-card-icon">${q.icon}</div>
+        <div class="hub-card-title">${q.title}</div>
+        <div class="hub-card-sub">${q.subtitle}</div>
+        <div class="hub-card-meta">${q.itemCount} kérdés · ~${q.estMinutes} perc</div>
+        ${scoreHtml}
+        <button class="hub-card-btn">${r?'Újra kitöltés':'Kitöltés'}</button>
+      </div></div>`;
+  });
+  html+=`</div>`;
+  document.getElementById('view-hub').innerHTML=html;
+  document.getElementById('modeBadge').textContent=hubMode==='self'?'Önismeret':'Klinikus';
+  document.getElementById('headerTitle').textContent='Mentális Egészség Hub';
+  document.getElementById('headerSub').textContent='Klinikai szűrőkérdőívek';
+}
+
+function setMode(m){
+  hubMode=m;
+  saveState();
+  renderHub();
+}
+
+/* ══════════════════════════════════════════════════════════
+   SECTION 8: START QUESTIONNAIRE
+══════════════════════════════════════════════════════════ */
+function startQ(qId){
+  currentQId=qId;
+  currentPage=0;
+  const q=getQ(qId);
+  if(qId==='adhd_aut'){
+    adhd_gender=null;
+    renderGenderSelect();
+    showView('gender');
+    return;
+  }
+  renderQIntro();
+  showView('questionnaire');
+}
+
+function renderGenderSelect(){
+  let html=`<div class="gender-card"><h2>ADHD & Autizmus Önértékelő</h2>
+    <p style="font-size:.88rem;color:var(--txt2)">A kérdőív nemek szerint differenciált kérdéseket tartalmaz a pontosabb szűrés érdekében.</p>
+    <div class="gender-grid">
+      <div class="gender-btn" id="gbtn-m" onclick="selectGender('m')">
+        <div class="g-icon">♂</div><div class="g-name">Férfi</div>
+        <div class="g-desc">Externalizáló tünetek, motoros hiperaktivitás</div>
+      </div>
+      <div class="gender-btn" id="gbtn-f" onclick="selectGender('f')">
+        <div class="g-icon">♀</div><div class="g-name">Nő</div>
+        <div class="g-desc">Internalizáló tünetek, maszkírozás, belső hiperaktivitás</div>
+      </div>
+    </div>
+    <button class="start-btn" id="genderStartBtn" disabled onclick="startADHDAut()">Tovább a kérdőívhez</button>
+  </div>`;
+  document.getElementById('view-gender').innerHTML=html;
+}
+
+function selectGender(g){
+  adhd_gender=g;
+  document.querySelectorAll('.gender-btn').forEach(b=>b.classList.remove('sel'));
+  document.getElementById('gbtn-'+g).classList.add('sel');
+  document.getElementById('genderStartBtn').disabled=false;
+}
+
+function startADHDAut(){
+  currentFilteredQs=ADHD_QUESTIONS.filter(q=>q.g==='b'||q.g===adhd_gender);
+  currentPage=0;
+  renderQPage();
+  showView('questionnaire');
+  document.getElementById('headerTitle').textContent='ADHD & Autizmus';
+  document.getElementById('headerSub').textContent=`${currentFilteredQs.length} kérdés · ${adhd_gender==='m'?'♂ Férfi':'♀ Nő'} profil`;
+}
+
+/* ══════════════════════════════════════════════════════════
+   SECTION 9: UNIVERSAL Q RENDERER
+══════════════════════════════════════════════════════════ */
+function renderQIntro(){
+  const q=getQ(currentQId);
+  document.getElementById('headerTitle').textContent=q.title;
+  document.getElementById('headerSub').textContent=q.subtitle;
+  let html=`<div class="q-intro"><div class="q-intro-hero"><h2>${q.icon} ${q.title}</h2><p>${q.subtitle}</p></div>
+    <div class="q-intro-body"><p>${q.intro}</p>
+    <div class="q-warn">${q.disclaimer}</div>
+    <button class="start-btn" onclick="beginQ()">Kitöltés megkezdése</button></div></div>`;
+  document.getElementById('view-questionnaire').innerHTML=html;
+}
+
+function beginQ(){
+  const q=getQ(currentQId);
+  if(currentQId==='adhd_aut'){
+    startADHDAut();return;
+  }
+  currentFilteredQs=q.items||[];
+  currentPage=0;
+  renderQPage();
+}
+
+function renderQPage(){
+  const q=getQ(currentQId);
+  const items=currentFilteredQs;
+  const total=items.length;
+  const start=currentPage*PAGE_SIZE;
+  const end=Math.min(start+PAGE_SIZE,total);
+  const pageItems=items.slice(start,end);
+  const ans=getAnswers(currentQId);
+  const answered=Object.keys(ans).length;
+
+  let html=`<div id="crisisBanner" class="crisis-banner"><h4>Fontos!</h4><p>Ha önkárosítási gondolataid vannak, kérlek hívd a <strong><a href="tel:116123">116 123</a></strong> Lelki Elsősegély vonalat. Nem vagy egyedül.</p></div>`;
+  html+=`<div class="q-page-info"><span>${answered}/${total} megválaszolva</span><span>${currentPage+1}/${Math.ceil(total/PAGE_SIZE)} oldal</span></div>`;
+
+  pageItems.forEach((item,idx)=>{
+    const globalIdx=start+idx+1;
+    const val=ans[item.id];
+    const isCrisis=item.crisis&&val!==undefined&&val>0;
+    let labels=item.scaleOverride||item.opts||q.scaleLabels;
+    const isCustomOpts=!!item.opts;
+    const isBinary=labels&&labels.length===2;
+    const isDual=q.isDual;
+
+    let catTag='';
+    if(currentQId==='adhd_aut'&&item.cat){
+      const c=ADHD_CATS[item.cat];
+      catTag=`<span class="q-tag" style="background:${c.color}">${c.label}</span>`;
+    }
+    if(item.sub&&q.subscales){
+      const ss=q.subscales.find(s=>s.id===item.sub);
+      if(ss) catTag=`<span class="q-tag" style="background:${ss.color}">${ss.name}</span>`;
+    }
+
+    html+=`<div class="q-card ${val!==undefined?'answered':''} ${isCrisis?'crisis-item':''}" id="qc-${item.id}">
+      <div class="q-top"><span class="q-num">${globalIdx}.</span><span class="q-text">${item.text}</span>${catTag}</div>`;
+
+    if(isDual){
+      html+=`<div class="dual-label">Félelem:</div><div class="answer-row">`;
+      for(let i=0;i<q.scaleLabels.length;i++){
+        const fKey='f_'+item.id;
+        const sel=ans[fKey]===i?'selected':'';
+        const bg=sel?`background:${getLevelColor(i,q.scaleLabels.length)};border-color:${getLevelColor(i,q.scaleLabels.length)}`:'';
+        html+=`<button class="ans-btn ${sel}" style="${bg}" onclick="setDualAns('${currentQId}','${item.id}','f',${i})">${q.scaleLabels[i]}</button>`;
+      }
+      html+=`</div><div class="dual-label">Kerülés:</div><div class="answer-row">`;
+      for(let i=0;i<q.scaleLabels2.length;i++){
+        const kKey='k_'+item.id;
+        const sel=ans[kKey]===i?'selected':'';
+        const bg=sel?`background:${getLevelColor(i,q.scaleLabels2.length)};border-color:${getLevelColor(i,q.scaleLabels2.length)}`:'';
+        html+=`<button class="ans-btn ${sel}" style="${bg}" onclick="setDualAns('${currentQId}','${item.id}','k',${i})">${q.scaleLabels2[i]}</button>`;
+      }
+      html+=`</div>`;
+    } else {
+      html+=`<div class="answer-row">`;
+      for(let i=0;i<labels.length;i++){
+        const sel=val===i?'selected':'';
+        const bg=sel?`background:${getLevelColor(i,labels.length)};border-color:${getLevelColor(i,labels.length)}`:'';
+        html+=`<button class="ans-btn ${sel}" style="${bg}" onclick="setAns('${currentQId}',${item.id},${i})">${isCustomOpts?labels[i]:labels[i]}</button>`;
+      }
+      html+=`</div>`;
+    }
+    html+=`</div>`;
+  });
+
+  html+=`<div class="nav-btns">
+    <button class="nav-btn nav-btn-secondary" ${currentPage===0?'disabled':''} onclick="prevQPage()">← Előző</button>
+    <button class="nav-btn nav-btn-primary" onclick="nextQPage()">${end>=total?'Eredmények →':'Következő →'}</button>
+  </div>`;
+  document.getElementById('view-questionnaire').innerHTML=html;
+  updateProgress();
+  checkCrisis();
+}
+
+function getLevelColor(val,max){
+  const colors=['#1A5276','#1E8BC3','#D4AC0D','#E67E22','#C0392B','#922B21'];
+  const idx=Math.min(val,colors.length-1);
+  if(max<=2) return val===0?'#1E8449':'#C0392B';
+  return colors[idx];
+}
+
+function setAns(qId,itemId,val){
+  const ans=getAnswers(qId);
+  ans[itemId]=val;
+  autoSave();
+  renderQPage();
+}
+
+function setDualAns(qId,itemId,type,val){
+  const ans=getAnswers(qId);
+  ans[type+'_'+itemId]=val;
+  autoSave();
+  renderQPage();
+}
+
+function checkCrisis(){
+  if(currentQId==='phq9'){
+    const ans=getAnswers('phq9');
+    const banner=document.getElementById('crisisBanner');
+    if(banner) banner.classList.toggle('show',ans[9]>0);
+  }
+}
+
+function prevQPage(){if(currentPage>0){currentPage--;renderQPage();window.scrollTo({top:0});}}
+function nextQPage(){
+  const items=currentFilteredQs;
+  const start=currentPage*PAGE_SIZE;
+  const end=Math.min(start+PAGE_SIZE,items.length);
+  const ans=getAnswers(currentQId);
+  const q=getQ(currentQId);
+
+  // Check unanswered
+  const pageItems=items.slice(start,end);
+  let allAnswered=true;
+  pageItems.forEach(item=>{
+    if(q.isDual){
+      if(ans['f_'+item.id]===undefined||ans['k_'+item.id]===undefined) allAnswered=false;
+    } else {
+      if(ans[item.id]===undefined) allAnswered=false;
+    }
+  });
+  if(!allAnswered){
+    const t=document.getElementById('toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);
+    return;
+  }
+  if(end>=items.length){
+    calculateResults();
+    return;
+  }
+  currentPage++;
+  renderQPage();
+  window.scrollTo({top:0});
+}
+
+/* ══════════════════════════════════════════════════════════
+   SECTION 10: SCORING
+══════════════════════════════════════════════════════════ */
+function calculateResults(){
+  const qId=currentQId;
+  const ans=getAnswers(qId);
+  const q=getQ(qId);
+  let result={};
+
+  if(qId==='adhd_aut'){
+    result=scoreADHDAut(ans);
+  } else if(qId==='mdq'){
+    result=scoreMDQ(ans);
+  } else if(qId==='eat26'){
+    result=scoreEAT26(ans,q);
+  } else if(qId==='audit'){
+    result=scoreAUDIT(ans);
+  } else if(qId==='lsas'){
+    result=scoreLSAS(ans,q);
+  } else if(qId==='pid5'){
+    result=scorePID5(ans,q);
+  } else {
+    result=scoreGeneric(ans,q);
+  }
+  const res=getResults();
+  res[qId]=result;
+  saveState();
+  renderResults(qId,result);
+  showView('results');
+}
+
+function scoreGeneric(ans,q){
+  let total=0;
+  (q.items||[]).forEach(item=>{
+    if(ans[item.id]!==undefined) total+=ans[item.id];
+  });
+  let level=q.cutoffs[0];
+  for(const c of q.cutoffs){ if(total<=c.max){level=c;break;} }
+  let subscaleResults=[];
+  if(q.subscales){
+    q.subscales.forEach(ss=>{
+      let ssTotal=0,ssMax=0;
+      ss.items.forEach(iid=>{
+        ssMax+=(q.scaleLabels.length-1);
+        if(ans[iid]!==undefined) ssTotal+=ans[iid];
+      });
+      subscaleResults.push({name:ss.name,score:ssTotal,max:ssMax,color:ss.color,pct:ssMax>0?Math.round(ssTotal/ssMax*100):0});
+    });
+  }
+  const crisis=q.id==='phq9'&&ans[9]>0;
+  return{total,max:q.maxScore,label:level.label,color:level.color,scoreText:`${total}/${q.maxScore} — ${level.label}`,subscales:subscaleResults,crisis};
+}
+
+function scoreADHDAut(ans){
+  const catScores={},catMax={};
+  Object.keys(ADHD_CATS).forEach(k=>{catScores[k]=0;catMax[k]=0;});
+  currentFilteredQs.forEach(q=>{catMax[q.cat]+=3;if(ans[q.id]!==undefined) catScores[q.cat]+=ans[q.id];});
+  const catPct={};
+  Object.keys(ADHD_CATS).forEach(k=>{catPct[k]=catMax[k]>0?Math.round(catScores[k]/catMax[k]*100):0;});
+  const adhdCats=['adhd_attn','adhd_hyp','adhd_imp'];
+  const autCats=['aut_soc','aut_comm','aut_rep','aut_sens'];
+  const adhdS=adhdCats.reduce((s,k)=>s+catScores[k],0),adhdM=adhdCats.reduce((s,k)=>s+catMax[k],0);
+  const autS=autCats.reduce((s,k)=>s+catScores[k],0),autM=autCats.reduce((s,k)=>s+catMax[k],0);
+  const adhdPct=Math.round(adhdS/adhdM*100),autPct=Math.round(autS/autM*100);
+  const getLevel=p=>p<25?{t:'Alacsony',c:'#1E8449'}:p<50?{t:'Enyhe',c:'#D4AC0D'}:p<70?{t:'Közepes',c:'#E67E22'}:p<85?{t:'Magas',c:'#C0392B'}:{t:'Klinikai',c:'#922B21'};
+  const aLv=getLevel(adhdPct),uLv=getLevel(autPct);
+  const subscales=Object.keys(ADHD_CATS).map(k=>({name:ADHD_CATS[k].label,score:catScores[k],max:catMax[k],color:ADHD_CATS[k].color,pct:catPct[k]}));
+  return{adhdPct,autPct,adhdLevel:aLv,autLevel:uLv,catPct,subscales,label:`ADHD ${adhdPct}% / Aut ${autPct}%`,color:Math.max(adhdPct,autPct)>=60?'#C0392B':'#D4AC0D',scoreText:`ADHD ${adhdPct}% · Aut ${autPct}%`};
+}
+
+function scoreMDQ(ans){
+  let yesCount=0;
+  for(let i=1;i<=13;i++) if(ans[i]===1) yesCount++;
+  const simultaneous=ans[14]===1;
+  const problemLevel=ans[15]||0;
+  const positive=yesCount>=7&&simultaneous&&problemLevel>=2;
+  return{total:positive?1:0,yesCount,simultaneous,problemLevel,positive,max:1,label:positive?'Pozitív szűrő':'Negatív szűrő',color:positive?'#C0392B':'#1E8449',scoreText:positive?'Pozitív — pszichiátriai értékelés':'Negatív szűrő',subscales:[]};
+}
+
+function scoreEAT26(ans,q){
+  let total=0;
+  q.items.forEach(item=>{
+    const raw=ans[item.id];
+    if(raw===undefined) return;
+    if(item.reversed){
+      total+=[0,0,0,1,2,3][raw]||0;
+    } else {
+      total+=[3,2,1,0,0,0][raw]||0;
+    }
+  });
+  const dItems=[1,6,7,10,11,12,14,16,17,22,23,24,25];
+  const bItems=[3,4,9,18,21,26];
+  const oItems=[2,5,8,13,15,19,20];
+  const calcSub=(ids,name,col)=>{
+    let s=0;ids.forEach(i=>{const r=ans[i];if(r===undefined)return;const item=q.items.find(x=>x.id===i);if(item&&item.reversed){s+=[0,0,0,1,2,3][r]||0;}else{s+=[3,2,1,0,0,0][r]||0;}});
+    return{name,score:s,max:ids.length*3,color:col,pct:Math.round(s/(ids.length*3)*100)};
+  };
+  const subscales=[calcSub(dItems,'Diétázás','#7D3C98'),calcSub(bItems,'Bulimiás étkezés','#C0392B'),calcSub(oItems,'Orális kontroll','#E67E22')];
+  let level=q.cutoffs[0];
+  for(const c of q.cutoffs){if(total<=c.max){level=c;break;}}
+  return{total,max:78,label:level.label,color:level.color,scoreText:`${total}/78 — ${level.label}`,subscales};
+}
+
+function scoreAUDIT(ans){
+  let total=0;
+  for(let i=1;i<=8;i++) total+=(ans[i]||0);
+  const q9map=[0,2,4];
+  const q10map=[0,2,4];
+  total+=(q9map[ans[9]]||0);
+  total+=(q10map[ans[10]]||0);
+  const q=getQ('audit');
+  let level=q.cutoffs[0];
+  for(const c of q.cutoffs){if(total<=c.max){level=c;break;}}
+  return{total,max:40,label:level.label,color:level.color,scoreText:`${total}/40 — ${level.label}`,subscales:[]};
+}
+
+function scoreLSAS(ans,q){
+  let fTotal=0,kTotal=0;
+  q.items.forEach(item=>{
+    fTotal+=(ans['f_'+item.id]||0);
+    kTotal+=(ans['k_'+item.id]||0);
+  });
+  const total=fTotal+kTotal;
+  let level=q.cutoffs[0];
+  for(const c of q.cutoffs){if(total<=c.max){level=c;break;}}
+  const subscales=[
+    {name:'Félelem összesen',score:fTotal,max:72,color:'#C0392B',pct:Math.round(fTotal/72*100)},
+    {name:'Kerülés összesen',score:kTotal,max:72,color:'#1A5276',pct:Math.round(kTotal/72*100)}
+  ];
+  return{total,max:144,label:level.label,color:level.color,scoreText:`${total}/144 — ${level.label}`,subscales};
+}
+
+function scorePID5(ans,q){
+  const domScores={};
+  q.subscales.forEach(ss=>{
+    let s=0,n=0;
+    ss.items.forEach(iid=>{if(ans[iid]!==undefined){s+=ans[iid];n++;}});
+    domScores[ss.id]={avg:n>0?(s/n).toFixed(1):0,total:s,count:n};
+  });
+  const subscales=q.subscales.map(ss=>({name:ss.name,score:parseFloat(domScores[ss.id].avg),max:3,color:ss.color,pct:Math.round(parseFloat(domScores[ss.id].avg)/3*100)}));
+  const highDomains=subscales.filter(s=>s.score>=2);
+  const total=Object.values(domScores).reduce((s,d)=>s+d.total,0);
+  return{total,max:75,label:highDomains.length>0?`${highDomains.length} emelt tartomány`:'Normál tartomány',color:highDomains.length>0?'#E67E22':'#1E8449',scoreText:highDomains.length>0?`${highDomains.length} emelt tartomány`:'Normál tartomány',subscales,highDomains};
+}
+
+/* ══════════════════════════════════════════════════════════
+   SECTION 11: RESULTS RENDERER
+══════════════════════════════════════════════════════════ */
+function renderResults(qId,result){
+  const q=getQ(qId);
+  let html=`<div class="res-hero"><h2>${q.icon} ${q.title}</h2><div class="res-sub">${q.subtitle}</div>`;
+
+  if(qId==='adhd_aut'){
+    html+=`<div style="display:flex;justify-content:center;gap:24px;margin-top:16px">
+      <div><div class="res-score-big" style="color:${result.adhdLevel.c}">${result.adhdPct}%</div><div style="font-size:.85rem">ADHD — ${result.adhdLevel.t}</div></div>
+      <div><div class="res-score-big" style="color:${result.autLevel.c}">${result.autPct}%</div><div style="font-size:.85rem">Autizmus — ${result.autLevel.t}</div></div>
+    </div>`;
+  } else if(qId==='mdq'){
+    html+=`<div class="res-score-big">${result.positive?'POZITÍV':'NEGATÍV'}</div>
+      <div class="res-level-badge" style="background:${result.color}22;color:${result.color}">${result.label}</div>
+      <div style="font-size:.82rem;margin-top:8px;color:var(--gold2)">Igen válaszok: ${result.yesCount}/13 | Egyidejűleg: ${result.simultaneous?'Igen':'Nem'} | Probléma: ${['Semmi','Enyhe','Közepes','Súlyos'][result.problemLevel]||'N/A'}</div>`;
+  } else {
+    html+=`<div class="res-score-big">${result.total}/${result.max}</div>
+      <div class="res-level-badge" style="background:${result.color}22;color:${result.color}">${result.label}</div>`;
+  }
+  html+=`</div>`;
+
+  // Crisis banner for PHQ-9
+  if(result.crisis){
+    html+=`<div class="crisis-banner show"><h4>Fontos figyelmeztetés</h4><p>Az önkárosítási gondolatokra vonatkozó kérdésre pozitív választ adott. Kérjük, forduljon szakemberhez, vagy hívja a <strong><a href="tel:116123">116 123</a></strong> Lelki Elsősegély vonalat.</p></div>`;
+  }
+
+  // Subscales
+  if(result.subscales&&result.subscales.length>0){
+    html+=`<div class="res-section"><h3>Alskálák</h3>`;
+    result.subscales.forEach(ss=>{
+      const pct=ss.pct!==undefined?ss.pct:(ss.max>0?Math.round(ss.score/ss.max*100):0);
+      html+=`<div class="sub-bar"><div class="sub-bar-head"><span class="sub-bar-name">${ss.name}</span><span class="sub-bar-val">${ss.score}/${ss.max} (${pct}%)</span></div>
+        <div class="sub-bar-track"><div class="sub-bar-fill" style="width:${pct}%;background:${ss.color}"></div></div></div>`;
+    });
+    html+=`</div>`;
+  }
+
+  // Interpretation
+  html+=`<div class="res-section"><h3>Értelmezés</h3>`;
+  if(qId==='adhd_aut'){
+    const both=result.adhdPct>=60&&result.autPct>=60;
+    if(both) html+=`<p class="res-text"><strong>AuDHD mintázat:</strong> mindkét területen magas értékek — átfogó neuropszichológiai értékelés javasolt.</p>`;
+    else html+=`<p class="res-text">Az eredmények alapján a domináns terület: <strong>${result.adhdPct>=result.autPct?'ADHD':'Autizmus spektrum'}</strong>. Feltáró jellegű eredmény — pontosabb képhez szakorvosi vizsgálat szükséges.</p>`;
+    // Comorbidity from ADHD app
+    html+=`<h3 style="margin-top:16px">Társult állapotok</h3>`;
+    ADHD_COMORBID.forEach(c=>{
+      html+=`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0f4fa;font-size:.84rem">
+        <span style="font-size:1.2rem">${c.icon}</span><span style="flex:1;font-weight:600">${c.name}</span>
+        <span style="color:${c.color};font-weight:600">ADHD: ${c.adhd}%</span>
+        <span style="color:var(--txt3)">ASD: ${c.aut}%</span></div>`;
+    });
+  } else {
+    const interp=q.interpretation;
+    let txt=interp.low;
+    if(result.total>=(q.maxScore*0.7)) txt=interp.high||interp.moderate||interp.low;
+    else if(result.total>=(q.maxScore*0.4)) txt=interp.moderate||interp.mild||interp.low;
+    else if(result.total>=(q.maxScore*0.2)) txt=interp.mild||interp.low;
+    html+=`<p class="res-text">${txt}</p>`;
+  }
+  html+=`</div>`;
+
+  // Next steps
+  html+=`<div class="res-section"><div class="res-next"><h4>Következő lépések</h4><ul>`;
+  if(hubMode==='clinical'){
+    html+=`<li>Strukturált klinikai interjú a szűrőeredmény megerősítéséhez</li>
+      <li>Differenciáldiagnózis vizsgálata</li><li>Kezelési terv összeállítása</li>`;
+  } else {
+    html+=`<li>Ha az eredmény aggodalomra ad okot, forduljon háziorvosához vagy pszichológushoz</li>
+      <li>Az eredmény szűrési célú — nem diagnózis</li>
+      <li>Krízis esetén hívja a 116 123 segélyvonalat</li>`;
+  }
+  html+=`</ul></div></div>`;
+
+  // Clinical note
+  if(hubMode==='clinical'){
+    const notes=(activeClientIdx!==null&&hubClients[activeClientIdx].notes)?hubClients[activeClientIdx].notes[qId]||'':'';
+    html+=`<div class="res-section"><h3>Klinikai megjegyzés</h3>
+      <textarea class="res-note" placeholder="Megjegyzés..." onchange="saveNote('${qId}',this.value)">${notes}</textarea></div>`;
+  }
+
+  // Comorbidity analysis
+  const comoHtml=renderComorbidities();
+  if(comoHtml) html+=comoHtml;
+
+  html+=`<div class="res-btns">
+    <button class="nav-btn nav-btn-secondary" onclick="goBack()">← Vissza a hubra</button>
+    <button class="nav-btn nav-btn-primary" onclick="window.print()">🖨️ PDF export</button>
+  </div>`;
+  document.getElementById('view-results').innerHTML=html;
+}
+
+function saveNote(qId,val){
+  if(activeClientIdx!==null&&hubClients[activeClientIdx]){
+    if(!hubClients[activeClientIdx].notes) hubClients[activeClientIdx].notes={};
+    hubClients[activeClientIdx].notes[qId]=val;
+    saveState();
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   SECTION 12: COMORBIDITY ANALYSIS
+══════════════════════════════════════════════════════════ */
+function renderComorbidities(){
+  const res=getResults();
+  const completed=Object.keys(res).length;
+  if(completed<2) return '';
+  const matches=[];
+  COMORBIDITY_PATTERNS.forEach(p=>{
+    try{if(p.check(res)) matches.push(p);}catch(e){}
+  });
+  if(matches.length===0) return '';
+  const sevColors={yellow:'#D4AC0D',orange:'#E67E22',red:'#C0392B'};
+  let html=`<div class="res-section"><h3>Mintázat-elemzés (komorbidítás)</h3>`;
+  matches.forEach(m=>{
+    const col=sevColors[m.severity]||'#D4AC0D';
+    html+=`<div class="como-card" style="border-color:${col};background:${col}11">
+      <h4 style="color:${col}">${m.title}</h4><p>${m.text}</p></div>`;
+  });
+  html+=`</div>`;
+  return html;
+}
+
+/* ══════════════════════════════════════════════════════════
+   SECTION 13: DASHBOARD
+══════════════════════════════════════════════════════════ */
+function renderDashboard(){
+  const res=getResults();
+  let html=`<div class="res-hero"><h2>📊 Dashboard</h2><div class="res-sub">${Object.keys(res).length}/12 kérdőív kitöltve</div></div>`;
+  html+=`<div class="dash-grid">`;
+  QUESTIONNAIRES.forEach(q=>{
+    const r=res[q.id];
+    if(r){
+      html+=`<div class="dash-card dash-done" onclick="showSavedResult('${q.id}')">
+        <div class="dash-icon">${q.icon}</div><div class="dash-name">${q.title}</div>
+        <div class="dash-score" style="color:${r.color}">${r.scoreText||r.label}</div></div>`;
+    } else {
+      html+=`<div class="dash-card dash-empty" onclick="startQ('${q.id}')">
+        <div class="dash-icon" style="opacity:.4">${q.icon}</div><div class="dash-name" style="opacity:.5">${q.title}</div>
+        <div class="dash-score">Nincs kitöltve</div></div>`;
+    }
+  });
+  html+=`</div>`;
+  const comoHtml=renderComorbidities();
+  if(comoHtml) html+=comoHtml;
+  html+=`<div class="res-btns">
+    <button class="nav-btn nav-btn-secondary" onclick="goBack()">← Vissza</button>
+    <button class="nav-btn nav-btn-primary" onclick="window.print()">🖨️ PDF export</button>
+  </div>`;
+  document.getElementById('view-dashboard').innerHTML=html;
+}
+
+function showSavedResult(qId){
+  const res=getResults();
+  if(res[qId]){
+    currentQId=qId;
+    renderResults(qId,res[qId]);
+    showView('results');
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   SECTION 14: CLIENT MANAGER
+══════════════════════════════════════════════════════════ */
+function renderClients(){
+  let html=`<div class="client-panel"><h3>Kliensek kezelése</h3>
+    <div class="client-input-row">
+      <input class="client-input" id="newClientName" placeholder="Új kliens neve...">
+      <button class="client-add-btn" onclick="addClient()">+ Hozzáadás</button>
+    </div>`;
+  if(hubClients.length===0){
+    html+=`<p style="color:var(--txt3);font-size:.85rem;text-align:center;padding:20px 0">Még nincsenek kliensek.</p>`;
+  }
+  hubClients.forEach((c,i)=>{
+    const isActive=i===activeClientIdx;
+    const ansCount=c.answers?Object.keys(c.answers).length:0;
+    html+=`<div class="client-item ${isActive?'active':''}" onclick="loadClient(${i})">
+      <div><div class="client-item-name">${c.name}</div>
+        <div class="client-item-info">${ansCount} kérdőív · ${c.created||'N/A'}</div></div>
+      <div class="client-item-btns">
+        <button class="client-del" onclick="event.stopPropagation();deleteClient(${i})">Törlés</button>
+      </div></div>`;
+  });
+  html+=`</div><button class="nav-btn nav-btn-secondary" style="width:100%" onclick="goBack()">← Vissza a hubra</button>`;
+  document.getElementById('view-clients').innerHTML=html;
+}
+
+function addClient(){
+  const input=document.getElementById('newClientName');
+  const name=input.value.trim();
+  if(!name) return;
+  hubClients.push({name,created:new Date().toLocaleDateString('hu-HU'),answers:{},results:{},notes:{}});
+  activeClientIdx=hubClients.length-1;
+  saveState();renderClients();
+}
+function loadClient(i){
+  activeClientIdx=i;
+  saveState();renderClients();renderHub();
+}
+function deleteClient(i){
+  if(!confirm('Biztosan törli a klienst?')) return;
+  hubClients.splice(i,1);
+  if(activeClientIdx>=hubClients.length) activeClientIdx=hubClients.length>0?0:null;
+  saveState();renderClients();
+}
+
+/* ══════════════════════════════════════════════════════════
+   SECTION 15: CONSENT, DARK MODE, INIT
+══════════════════════════════════════════════════════════ */
+function acceptConsent(){
+  localStorage.setItem('hub_consent','1');
+  document.getElementById('consentOverlay').style.display='none';
+}
+
+function toggleMode(){
+  hubMode=hubMode==='self'?'clinical':'self';
+  saveState();renderHub();
+}
+
+function toggleTheme(){
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  document.documentElement.setAttribute('data-theme',isDark?'':'dark');
+  localStorage.setItem('hub_dark',isDark?'0':'1');
+}
+
+// Init
+document.addEventListener('DOMContentLoaded',()=>{
+  if(!localStorage.getItem('hub_consent')){
+    document.getElementById('consentOverlay').style.display='flex';
+  }
+  if(localStorage.getItem('hub_dark')==='1'){
+    document.documentElement.setAttribute('data-theme','dark');
+  }
+  renderHub();
+});
+</script>
+</body>
+</html>
