@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="hu">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f8f5ed" />
+    <meta name="description" content="Egy telefon, egy társaság, rengeteg szerep. Magyar színészkitaláló játék a homlokotokra, fekvő nézetben." />
+    <title>Homlok! — Ma este ki vagy?</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="module" src="./app.js"></script>
+  </head>
+  <body>
+    <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 2 2.7 6.8L22 9.5l-5.5 4.8 1.7 7.2-6.2-3.8-6.2 3.8 1.7-7.2L2 9.5l7.3-.7Z"/></symbol>
+      <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+      <symbol id="i-skip" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7M5 5l7 7-7 7m14-14v14"/></symbol>
+      <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+      <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+      <symbol id="i-sound" viewBox="0 0 24 24"><path d="m11 4-6 5H2v6h3l6 5ZM15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></symbol>
+      <symbol id="i-muted" viewBox="0 0 24 24"><path d="m11 4-6 5H2v6h3l6 5ZM16 9l6 6m0-6-6 6"/></symbol>
+      <symbol id="i-phone" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="3"/><path d="M17 10v4M6 12h.01"/></symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    </svg>
+
+    <section id="home-screen" class="screen home-screen">
+      <header class="site-header shell">
+        <a href="./" class="brand" aria-label="Homlok! Kezdőlap"><span class="brand-mark"><svg><use href="#i-star"/></svg></span>homlok<span class="brand-bang">!</span></a>
+        <span class="header-caption">EGY TELEFON. EGY TÁRSASÁG.</span>
+        <button id="header-sound" class="icon-button" aria-label="Hang bekapcsolása" aria-pressed="false"><svg><use href="#i-muted"/></svg></button>
+      </header>
+
+      <main class="shell home-main">
+        <section class="hero" aria-labelledby="hero-title">
+          <div class="hero-copy">
+            <span class="eyebrow"><span class="live-dot"></span> A KÖVETKEZŐ KÖR RAJTATOK ÁLL</span>
+            <h1 id="hero-title">Ma este<br/><span class="title-accent">ki vagy?</span><span class="title-spark" aria-hidden="true">✳︎</span></h1>
+            <p>Telefon a homlokra. Barátok szemben.<br/>Találd ki, melyik színész vagy!</p>
+            <a class="text-link" href="#how-to">Így játsszatok <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <span class="art-orbit orbit-one"></span><span class="art-orbit orbit-two"></span>
+            <span class="art-label label-top">A TÖBBIEK MÁR TUDJÁK.</span>
+            <div class="demo-phone"><span class="demo-camera"></span><div class="demo-top"><span>KI VAGYOK ÉN?</span><span>0:42</span></div><div class="demo-name">LEONARDO<br/>DICAPRIO</div><div class="demo-bottom"><span>↶ PASSZ</span><span>MEGVAN! ✓</span></div></div>
+            <span class="art-star star-one">✦</span><span class="art-star star-two">✳︎</span><span class="art-label label-bottom">TE MÉG CSAK TALÁLGATSZ.</span>
+          </div>
+        </section>
+
+        <section class="setup-panel" aria-labelledby="setup-title">
+          <div class="section-heading"><div><span class="eyebrow muted">JÖHET EGY KÖR?</span><h2 id="setup-title">Válasszatok szerepet.</h2></div><span class="step-tag">01 / PAKLI</span></div>
+          <fieldset class="deck-options"><legend class="sr-only">Válassz paklit</legend><div id="deck-options" class="deck-grid"></div></fieldset>
+          <div class="settings-row">
+            <fieldset class="duration-options"><legend>Kör hossza</legend><div class="segmented" id="duration-options"><label><input type="radio" name="duration" value="60" checked/><span>60 mp</span></label><label><input type="radio" name="duration" value="90"/><span>90 mp</span></label><label><input type="radio" name="duration" value="120"/><span>120 mp</span></label></div></fieldset>
+            <div class="toggle-settings"><label class="toggle-label"><span>Billentés <span class="subtle">telefonnal</span></span><input type="checkbox" id="tilt-setting" checked/><span class="switch" aria-hidden="true"></span></label><label class="toggle-label"><span>Hangjelzések</span><input type="checkbox" id="sound-setting"/><span class="switch" aria-hidden="true"></span></label></div>
+            <button id="start-button" class="button button-dark start-button">Indulhat a játék! <svg><use href="#i-arrow"/></svg></button>
+          </div>
+          <p class="setup-footnote"><svg><use href="#i-phone"/></svg> Fekvő nézetben az igazi. Letöltés és regisztráció nélkül.</p>
+        </section>
+
+        <section id="how-to" class="how-to" aria-labelledby="how-title"><div class="how-title"><span class="eyebrow muted">ENNÉL EGYSZERŰBB NEM LESZ</span><h2 id="how-title">Három lépés.<br/> Sok nevetés.</h2></div><div class="how-step"><span class="step-number">01</span><h3>Homlokra vele!</h3><p>Fordítsd fekvőbe a telefont, és tartsd a homlokodhoz, kijelzővel a barátaid felé.</p></div><div class="how-step"><span class="step-number">02</span><h3>Jöhetnek a tippek.</h3><p>A többiek körülírják a színészt. Filmek, szerepek, utánzás — a nevét ne mondják ki!</p></div><div class="how-step"><span class="step-number">03</span><h3>Megvan? Következő!</h3><p>Kijelző felfelé: megvan. Lefelé: passz. Vagy egy barát nyomja meg a megfelelő gombot.</p></div></section>
+      </main>
+      <footer class="site-footer shell"><span>Barátoknak készült. Jó estékre.</span><span>170 NÉV · VÉGTELEN TIPP</span></footer>
+    </section>
+
+    <section id="countdown-screen" class="screen countdown-screen" hidden aria-labelledby="countdown-title"><button id="cancel-countdown" class="icon-button countdown-close" aria-label="Vissza a paklikhoz"><svg><use href="#i-close"/></svg></button><span class="eyebrow">KÉSZÜLJETEK!</span><h1 id="countdown-title">Telefont a homlokra!</h1><div id="countdown-number" class="countdown-number" aria-live="polite">3</div><p>A nevet csak a többiek lássák.</p><div class="countdown-hints"><span>↑ Kijelző felfelé: megvan</span><span>↓ Kijelző lefelé: passz</span></div></section>
+
+    <section id="game-screen" class="screen game-screen" hidden aria-label="Folyamatban lévő játék">
+      <header class="game-header"><span id="game-timer" class="game-timer" role="timer" aria-label="Hátralévő idő"><svg><use href="#i-clock"/></svg><span id="timer-value">1:00</span></span><span id="game-deck" class="game-deck">VILÁGSZTÁROK</span><div class="game-tools"><span class="game-score"><svg><use href="#i-check"/></svg><span id="live-score">0</span></span><button id="pause-button" class="icon-button" aria-label="Játék szüneteltetése"><svg><use href="#i-pause"/></svg></button></div></header>
+      <div class="timer-track" aria-hidden="true"><span id="timer-progress"></span></div>
+      <main class="actor-stage"><span class="eyebrow">KI VAGYOK ÉN?</span><h1 id="actor-name" aria-live="polite"></h1><span id="tilt-status" class="tilt-status">A barátaid segítenek kitalálni.</span></main>
+      <footer class="game-controls"><button id="pass-button" class="answer-button pass-button"><svg><use href="#i-skip"/></svg><span>Passz<small>Kijelző lefelé</small></span><kbd>←</kbd></button><button id="correct-button" class="answer-button correct-button"><svg><use href="#i-check"/></svg><span>Megvan!<small>Kijelző felfelé</small></span><kbd>→</kbd></button></footer>
+      <div id="answer-feedback" class="answer-feedback" hidden aria-live="assertive"><span id="feedback-symbol"></span><strong id="feedback-label"></strong></div>
+    </section>
+
+    <section id="results-screen" class="screen results-screen" hidden aria-labelledby="results-title"><header class="shell results-header"><a href="./" class="brand"><span class="brand-mark"><svg><use href="#i-star"/></svg></span>homlok<span class="brand-bang">!</span></a><span class="eyebrow muted">EZ SZÉP KÖR VOLT!</span></header><main class="results-content"><span class="result-star" aria-hidden="true">✳︎</span><span id="results-reason" class="eyebrow">LEJÁRT AZ IDŐ</span><h1 id="results-title">Tapsot a főszereplőnek!</h1><p id="result-summary"></p><div class="result-stats"><div><strong id="correct-count">0</strong><span>találat</span></div><div><strong id="pass-count">0</strong><span>passz</span></div><div><strong id="accuracy-value">—</strong><span>pontosság</span></div></div><div class="results-actions"><button id="play-again" class="button button-dark">Jöhet a következő játékos! <svg><use href="#i-arrow"/></svg></button><button id="back-home" class="button button-light">Vissza a paklikhoz</button></div><details id="round-details" class="round-details"><summary>A kör nevei <span id="result-total"></span></summary><ul id="result-list"></ul></details></main><footer class="results-footer">Add tovább a telefont. Most más legyen a sztár.</footer></section>
+
+    <div id="rotate-overlay" class="overlay rotate-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="rotate-title"><div class="rotate-phone" aria-hidden="true"><svg><use href="#i-phone"/></svg><span>↻</span></div><span class="eyebrow">FORDULJUNK RÁ!</span><h2 id="rotate-title">Fordítsd el a telefont!</h2><p>Ez a játék fekvő nézetben fut.<br/>A visszaszámlálás addig vár.</p><button id="rotate-exit" class="button button-light">Vissza a paklikhoz</button></div>
+    <div id="pause-overlay" class="overlay pause-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="pause-title"><span class="pause-decoration" aria-hidden="true">Ⅱ</span><span class="eyebrow">EGY KIS SZÜNET</span><h2 id="pause-title">A szereped megvár.</h2><p>Az időzítő áll. Folytassátok, amikor készen álltok.</p><div class="pause-actions"><button id="resume-button" class="button button-dark">Folytatás <svg><use href="#i-arrow"/></svg></button><button id="finish-button" class="button button-light">Kör befejezése</button></div></div>
+    <div id="toast" class="toast" hidden role="status"></div>
+    <noscript><div class="noscript">A játékhoz engedélyezd a JavaScriptet a böngésződben.</div></noscript>
+  </body>
+</html>
