@@ -1,5 +1,6 @@
-import { DECKS, getDeckCards } from './data.js?v=2';
+import { DECKS, getDeckCards } from './data.js?v=3';
 import { Round, tiltState } from './game-core.js';
+import { PartyHistory } from './party-history.js?v=3';
 
 const $ = (id) => document.getElementById(id);
 const STORAGE_KEY = 'homlok-settings-v1';
@@ -12,6 +13,10 @@ try {
   if (typeof stored?.tilt === 'boolean') settings.tilt = stored.tilt;
   if (typeof stored?.sound === 'boolean') settings.sound = stored.sound;
 } catch { /* A játék privát módban, tárhely nélkül is működik. */ }
+
+let partyStorage = null;
+try { partyStorage = window.localStorage; } catch { /* In-memory history still works. */ }
+const partyHistory = new PartyHistory({ cards: getDeckCards('mix'), storage: partyStorage });
 
 let mode = 'home';
 let round = null;
@@ -73,6 +78,10 @@ function renderDecks() {
       span.textContent = text;
       info.append(span);
     }
+    const remaining = document.createElement('span');
+    remaining.className = 'deck-remaining';
+    remaining.dataset.remainingDeck = deck.id;
+    info.append(remaining);
     const radio = document.createElement('span');
     radio.className = 'deck-radio';
     radio.setAttribute('aria-hidden', 'true');
@@ -82,8 +91,36 @@ function renderDecks() {
     input.addEventListener('change', () => {
       settings.deck = deck.id;
       persistSettings();
+      updatePartyStatus();
     });
   }
+}
+
+function updatePartyStatus() {
+  for (const deck of DECKS) {
+    const remaining = partyHistory.remaining(getDeckCards(deck.id)).length;
+    const label = document.querySelector(`[data-remaining-deck="${deck.id}"]`);
+    if (label) {
+      label.textContent = remaining ? `${remaining} még nem volt` : 'Minden feladvány volt már';
+      label.classList.toggle('deck-exhausted', remaining === 0);
+    }
+  }
+  const remaining = partyHistory.remaining(getDeckCards(settings.deck)).length;
+  $('party-progress').textContent = `${partyHistory.usedCount} már volt · ${partyHistory.totalCount - partyHistory.usedCount} új maradt`;
+  $('party-message').textContent = remaining
+    ? 'A látott feladványokat a következő körökben és pakliváltáskor is kihagyjuk.'
+    : 'Ez a pakli elfogyott. Válasszatok másikat, vagy indítsatok új partit.';
+  $('start-button').disabled = remaining === 0;
+  $('reset-party').disabled = partyHistory.usedCount === 0;
+  $('play-again').disabled = remaining === 0;
+  $('remaining-summary').textContent = remaining
+    ? `Ebben a pakliban még ${remaining} új feladvány vár rátok.`
+    : 'Ez a pakli elfogyott. A pakliknál válasszatok másikat, vagy indítsatok új partit.';
+}
+
+function recordVisibleCard(now) {
+  if (mode !== 'playing' || round?.status !== 'playing' || activeOverlay || document.hidden || now < feedbackUntil) return;
+  if (partyHistory.markSeen(round.current.id)) updatePartyStatus();
 }
 
 function syncSound() {
@@ -217,12 +254,19 @@ async function requestMotion() {
 
 async function beginRound() {
   if (preparing || playingMode()) return;
+  const available = partyHistory.remaining(getDeckCards(settings.deck));
+  if (!available.length) {
+    goHome();
+    updatePartyStatus();
+    toast('Ez a pakli elfogyott. Válasszatok másikat, vagy indítsatok új partit.');
+    return;
+  }
   const session = ++roundSession;
   preparing = true;
   ensureAudio();
   // iOS requires this call directly in the user's click event, before any await.
   const permission = requestMotion();
-  round = new Round({ actors: getDeckCards(settings.deck), duration: settings.duration });
+  round = new Round({ actors: available, duration: settings.duration });
   mode = 'countdown';
   manuallyPaused = false;
   countdownRemaining = 3;
@@ -254,6 +298,7 @@ function startPlaying(now) {
   renderActor();
   renderTimer(now);
   updateOverlays();
+  recordVisibleCard(now);
   beep('start');
 }
 
@@ -289,10 +334,12 @@ function renderTimer(now) {
 function answer(outcome) {
   const now = performance.now();
   if (mode !== 'playing' || activeOverlay || document.hidden || now < feedbackUntil) return;
+  const answeredCard = round.current;
   if (!round.answer(outcome, now)) {
     if (round.status === 'finished') showResults();
     return;
   }
+  if (partyHistory.markSeen(answeredCard.id)) updatePartyStatus();
   tiltArmed = false;
   neutralSince = null;
   beep(outcome);
@@ -314,6 +361,7 @@ function showResults() {
   manuallyPaused = false;
   $('answer-feedback').hidden = true;
   updateOverlays();
+  updatePartyStatus();
   const results = round.results;
   const correct = results.filter((entry) => entry.outcome === 'correct').length;
   const passed = results.length - correct;
@@ -346,7 +394,7 @@ function showResults() {
   showScreen('results');
   releaseDevice();
   beep('end');
-  $('play-again').focus({ preventScroll: true });
+  ($('play-again').disabled ? $('back-home') : $('play-again')).focus({ preventScroll: true });
 }
 
 function goHome() {
@@ -356,16 +404,16 @@ function goHome() {
   preparing = false;
   manuallyPaused = false;
   round = null;
+  updatePartyStatus();
   updateOverlays();
   showScreen('home');
   releaseDevice();
-  $('start-button').focus({ preventScroll: true });
+  ($('start-button').disabled ? $('reset-party') : $('start-button')).focus({ preventScroll: true });
 }
 
 function pauseGame() {
   if (!playingMode()) return;
   manuallyPaused = true;
-  $('answer-feedback').hidden = true;
   tiltArmed = false;
   neutralSince = null;
   updateOverlays();
@@ -397,7 +445,10 @@ function frame(now) {
     round.update(now);
     renderTimer(now);
     if (round.status === 'finished') showResults();
-    else if (now >= feedbackUntil) $('answer-feedback').hidden = true;
+    else if (now >= feedbackUntil) {
+      $('answer-feedback').hidden = true;
+      recordVisibleCard(now);
+    }
   }
   requestAnimationFrame(frame);
 }
@@ -419,6 +470,7 @@ window.addEventListener('deviceorientation', (event) => {
 }, { passive: true });
 
 renderDecks();
+updatePartyStatus();
 $('total-cards').textContent = `${getDeckCards('mix').length} FELADVÁNY · VÉGTELEN TIPP`;
 syncSound();
 $('tilt-setting').checked = settings.tilt;
@@ -455,6 +507,15 @@ $('finish-button').addEventListener('click', () => {
 });
 $('correct-button').addEventListener('click', () => answer('correct'));
 $('pass-button').addEventListener('click', () => answer('pass'));
+$('reset-party').addEventListener('click', () => $('reset-party-dialog').showModal());
+$('cancel-party-reset').addEventListener('click', () => $('reset-party-dialog').close());
+$('confirm-party-reset').addEventListener('click', () => {
+  partyHistory.reset();
+  $('reset-party-dialog').close();
+  updatePartyStatus();
+  $('start-button').focus({ preventScroll: true });
+  toast('Új parti indult. Minden feladvány újra játszható.');
+});
 
 document.addEventListener('keydown', (event) => {
   if (activeOverlay && event.key === 'Tab') {

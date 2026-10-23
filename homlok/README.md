@@ -11,11 +11,19 @@ Magyar nyelvű, telefonos színész- és filmkitaláló baráti társaságoknak.
 3. Ha kitaláltad, fordítsd a kijelzőt felfelé. Passzoláshoz fordítsd lefelé. Két billentés között állítsd vissza a telefont a homlokodhoz, függőleges kijelzősíkba.
 4. A kör végén megnézhetitek a pontszámot és a megfejtéseket.
 
-Négy pakli közül választhattok: **Világsztárok** (100 színész), **Magyar kedvencek** (70 színész), **Filmek** (120 filmcím, köztük 20 magyar film) és **Mindent bele!** (mind a 290 feladvány). A vegyes pakliban a kijelző a „Ki vagyok én?” vagy „Melyik film ez?” kérdéssel jelzi a feladvány típusát. A hangjelzések és a billentéses vezérlés opcionálisak.
+Négy pakli közül választhattok: **Világsztárok** (200 színész), **Magyar kedvencek** (120 színész), **Filmek** (250 filmcím, köztük 50 magyar film) és **Mindent bele!** (mind az 570 feladvány). A vegyes pakliban a kijelző a „Ki vagyok én?” vagy „Melyik film ez?” kérdéssel jelzi a feladvány típusát. A hangjelzések és a billentéses vezérlés opcionálisak.
 
 iPhone-on az indításkor engedélyezni kell a mozgásérzékelők használatát, ha billentéssel szeretnétek játszani. Az érzékelők működése készülékenként és böngészőnként eltérhet; a **Megvan** és **Passz** gombokkal is végigjátszható minden kör.
 
 Számítógépen: **←** passz, **→** megvan, **Szóköz** vagy **Escape** szünet.
+
+## Ismétlés nélküli parti
+
+A megjelent feladványok a következő körökben és másik pakliban sem ismétlődnek. A passzolt, illetve az idő lejártakor a kijelzőn maradt feladvány is látottnak számít. Csak a ténylegesen megjelenő kártyák fogynak a pakliból.
+
+A pakliknál látjátok, mennyi új feladvány maradt. Ha egy pakli elfogyott, válasszatok másikat, vagy az **Új parti** gombbal keverjétek újra az összes feladványt. A játék magától nem hozza vissza a már látottakat.
+
+Az előzmények az adott telefon böngészőjében tárolódnak, így újratöltés vagy későbbi megnyitás után is folytathatjátok a partit. Ha a böngésző nem engedi a helyi tárolást, az ismétlésvédelem az oldal bezárásáig működik.
 
 ## Futtatás helyben
 
@@ -27,7 +35,7 @@ npm start
 
 Nyisd meg: **http://localhost:4173**
 
-A játékmotor és a paklik tesztjei:
+A játékmotor, a paklik és a mentett parti tesztjei:
 
 ```sh
 npm test
@@ -50,7 +58,7 @@ Az alkalmazás relatív útvonalakat használ, így a `https://felhasznalonev.gi
 - Ha megjelenik az elforgatási útmutató, kapcsold ki a telefon álló helyzetű tájolásának zárolását, majd fordítsd el a készüléket.
 - iPhone-on a Safariban a **Megosztás → Főképernyőhöz adás** lehetőséggel külön ikonról indíthatod.
 - Az első internetes megnyitás után a service worker elmenti a játék alapfájljait a későbbi offline használathoz. Ehhez HTTPS vagy `localhost` szükséges; az első betöltés és a gyorsítótárazás befejezése előtt még kell internet.
-- A beállítások az adott böngésző `localStorage` tárhelyén maradnak. A játék nem használ külső képeket, betűkészleteket vagy adatbázist.
+- A beállítások és a látott feladványok az adott böngésző `localStorage` tárhelyén maradnak. A játék nem használ külső képeket, betűkészleteket vagy adatbázist.
 
 ## Saját nevek
 

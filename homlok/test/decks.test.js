@@ -18,7 +18,9 @@ test('each deck offers valid unique cards and a matching count unit', () => {
 });
 
 test('movie rounds contain films, actor rounds contain actors, mixed rounds offer both', () => {
-  assert.ok(MOVIES.length >= 100);
+  assert.ok(getDeckCards('world').length >= 200);
+  assert.ok(getDeckCards('hungarian').length >= 120);
+  assert.ok(MOVIES.length >= 250);
   assert.equal(new Set(MOVIES.map((card) => card.name)).size, MOVIES.length);
   assert.ok(getDeckCards('movies').every((card) => card.type === 'movie'));
   for (const id of ['world', 'hungarian']) {

@@ -7,9 +7,9 @@
     <meta name="description" content="Egy telefon, egy társaság, rengeteg szerep. Magyar színész- és filmkitaláló játék a homlokotokra, fekvő nézetben." />
     <title>Homlok! — Ma este ki vagy?</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-    <link rel="manifest" href="./manifest.webmanifest?v=2" />
-    <link rel="stylesheet" href="./styles.css?v=2" />
-    <script type="module" src="./app.js?v=2"></script>
+    <link rel="manifest" href="./manifest.webmanifest?v=3" />
+    <link rel="stylesheet" href="./styles.css?v=3" />
+    <script type="module" src="./app.js?v=3"></script>
   </head>
   <body>
     <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -51,6 +51,7 @@
         <section class="setup-panel" aria-labelledby="setup-title">
           <div class="section-heading"><div><span class="eyebrow muted">JÖHET EGY KÖR?</span><h2 id="setup-title">Válasszatok paklit.</h2></div><span class="step-tag">01 / PAKLI</span></div>
           <fieldset class="deck-options"><legend class="sr-only">Válassz paklit</legend><div id="deck-options" class="deck-grid"></div></fieldset>
+          <div class="party-strip"><div><span class="party-title">Ismétlés nélküli parti</span><span id="party-progress" class="party-progress" role="status"></span><p id="party-message"></p></div><button id="reset-party" class="party-reset" type="button">Új parti</button></div>
           <div class="settings-row">
             <fieldset class="duration-options"><legend>Kör hossza</legend><div class="segmented" id="duration-options"><label><input type="radio" name="duration" value="60" checked/><span>60 mp</span></label><label><input type="radio" name="duration" value="90"/><span>90 mp</span></label><label><input type="radio" name="duration" value="120"/><span>120 mp</span></label></div></fieldset>
             <div class="toggle-settings"><label class="toggle-label"><span>Billentés <span class="subtle">telefonnal</span></span><input type="checkbox" id="tilt-setting" checked/><span class="switch" aria-hidden="true"></span></label><label class="toggle-label"><span>Hangjelzések</span><input type="checkbox" id="sound-setting"/><span class="switch" aria-hidden="true"></span></label></div>
@@ -74,11 +75,12 @@
       <div id="answer-feedback" class="answer-feedback" hidden aria-live="assertive"><span id="feedback-symbol"></span><strong id="feedback-label"></strong></div>
     </section>
 
-    <section id="results-screen" class="screen results-screen" hidden aria-labelledby="results-title"><header class="shell results-header"><a href="./" class="brand"><span class="brand-mark"><svg><use href="#i-star"/></svg></span>homlok<span class="brand-bang">!</span></a><span class="eyebrow muted">EZ SZÉP KÖR VOLT!</span></header><main class="results-content"><span class="result-star" aria-hidden="true">✳︎</span><span id="results-reason" class="eyebrow">LEJÁRT AZ IDŐ</span><h1 id="results-title">Tapsot a főszereplőnek!</h1><p id="result-summary"></p><div class="result-stats"><div><strong id="correct-count">0</strong><span>találat</span></div><div><strong id="pass-count">0</strong><span>passz</span></div><div><strong id="accuracy-value">—</strong><span>pontosság</span></div></div><div class="results-actions"><button id="play-again" class="button button-dark">Jöhet a következő játékos! <svg><use href="#i-arrow"/></svg></button><button id="back-home" class="button button-light">Vissza a paklikhoz</button></div><details id="round-details" class="round-details"><summary>A kör feladványai <span id="result-total"></span></summary><ul id="result-list"></ul></details></main><footer class="results-footer">Add tovább a telefont. Most más legyen a sztár.</footer></section>
+    <section id="results-screen" class="screen results-screen" hidden aria-labelledby="results-title"><header class="shell results-header"><a href="./" class="brand"><span class="brand-mark"><svg><use href="#i-star"/></svg></span>homlok<span class="brand-bang">!</span></a><span class="eyebrow muted">EZ SZÉP KÖR VOLT!</span></header><main class="results-content"><span class="result-star" aria-hidden="true">✳︎</span><span id="results-reason" class="eyebrow">LEJÁRT AZ IDŐ</span><h1 id="results-title">Tapsot a főszereplőnek!</h1><p id="result-summary"></p><p id="remaining-summary" class="remaining-summary"></p><div class="result-stats"><div><strong id="correct-count">0</strong><span>találat</span></div><div><strong id="pass-count">0</strong><span>passz</span></div><div><strong id="accuracy-value">—</strong><span>pontosság</span></div></div><div class="results-actions"><button id="play-again" class="button button-dark">Jöhet a következő játékos! <svg><use href="#i-arrow"/></svg></button><button id="back-home" class="button button-light">Vissza a paklikhoz</button></div><details id="round-details" class="round-details"><summary>A kör feladványai <span id="result-total"></span></summary><ul id="result-list"></ul></details></main><footer class="results-footer">Add tovább a telefont. Most más legyen a sztár.</footer></section>
 
     <div id="rotate-overlay" class="overlay rotate-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="rotate-title"><div class="rotate-phone" aria-hidden="true"><svg><use href="#i-phone"/></svg><span>↻</span></div><span class="eyebrow">FORDULJUNK RÁ!</span><h2 id="rotate-title">Fordítsd el a telefont!</h2><p>Ez a játék fekvő nézetben fut.<br/>A visszaszámlálás addig vár.</p><button id="rotate-exit" class="button button-light">Vissza a paklikhoz</button></div>
     <div id="pause-overlay" class="overlay pause-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="pause-title"><span class="pause-decoration" aria-hidden="true">Ⅱ</span><span class="eyebrow">EGY KIS SZÜNET</span><h2 id="pause-title">A feladvány megvár.</h2><p>Az időzítő áll. Folytassátok, amikor készen álltok.</p><div class="pause-actions"><button id="resume-button" class="button button-dark">Folytatás <svg><use href="#i-arrow"/></svg></button><button id="finish-button" class="button button-light">Kör befejezése</button></div></div>
     <div id="toast" class="toast" hidden role="status"></div>
+    <dialog id="reset-party-dialog" class="party-dialog" aria-labelledby="reset-party-title"><h2 id="reset-party-title">Új partit kezdtek?</h2><p>A már látott feladványok újra bekerülnek a paklikba. A beállításaitok megmaradnak.</p><div class="party-dialog-actions"><button id="cancel-party-reset" class="button button-light" autofocus>Mégse</button><button id="confirm-party-reset" class="button button-dark">Új parti indítása</button></div></dialog>
     <noscript><div class="noscript">A játékhoz engedélyezd a JavaScriptet a böngésződben.</div></noscript>
   </body>
 </html>
