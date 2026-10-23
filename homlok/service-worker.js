@@ -1,8 +1,8 @@
-const CACHE_NAME = 'homlok-v1';
-const CORE = ['./', './index.html', './styles.css', './app.js', './data.js', './game-core.js', './favicon.svg', './manifest.webmanifest'];
+const CACHE_NAME = 'homlok-v2';
+const CORE = ['./', './index.html', './styles.css?v=2', './app.js?v=2', './data.js?v=2', './game-core.js', './favicon.svg', './manifest.webmanifest?v=2'];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE)).then(() => self.skipWaiting()));
+  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE.map((path) => new Request(path, { cache: 'reload' })))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', (event) => {

@@ -1,6 +1,8 @@
 # Homlok Party 🎬
 
-Magyar nyelvű, telefonos színészkitaláló baráti társaságoknak. Tartsd a telefont fekvő helyzetben a homlokodhoz: a többiek körülírják a kijelzőn látható színészt, te pedig megpróbálod kitalálni.
+Magyar nyelvű, telefonos színész- és filmkitaláló baráti társaságoknak. Tartsd a telefont fekvő helyzetben a homlokodhoz: a többiek körülírják a kijelzőn látható színészt vagy filmet, te pedig megpróbálod kitalálni.
+
+**[Játék indítása](https://jtdevzero.github.io/Mentalhealthhub/homlok/)**
 
 ## Játékmenet
 
@@ -9,7 +11,7 @@ Magyar nyelvű, telefonos színészkitaláló baráti társaságoknak. Tartsd a 
 3. Ha kitaláltad, fordítsd a kijelzőt felfelé. Passzoláshoz fordítsd lefelé. Két billentés között állítsd vissza a telefont a homlokodhoz, függőleges kijelzősíkba.
 4. A kör végén megnézhetitek a pontszámot és a megfejtéseket.
 
-Három pakli közül választhattok: **Világsztárok** (100 név), **Magyar kedvencek** (70 név) és **Mindent bele!** (mind a 170 név). A hangjelzések és a billentéses vezérlés opcionálisak.
+Négy pakli közül választhattok: **Világsztárok** (100 színész), **Magyar kedvencek** (70 színész), **Filmek** (120 filmcím, köztük 20 magyar film) és **Mindent bele!** (mind a 290 feladvány). A vegyes pakliban a kijelző a „Ki vagyok én?” vagy „Melyik film ez?” kérdéssel jelzi a feladvány típusát. A hangjelzések és a billentéses vezérlés opcionálisak.
 
 iPhone-on az indításkor engedélyezni kell a mozgásérzékelők használatát, ha billentéssel szeretnétek játszani. Az érzékelők működése készülékenként és böngészőnként eltérhet; a **Megvan** és **Passz** gombokkal is végigjátszható minden kör.
 
@@ -25,7 +27,7 @@ npm start
 
 Nyisd meg: **http://localhost:4173**
 
-A játékmotor tesztjei:
+A játékmotor és a paklik tesztjei:
 
 ```sh
 npm test
@@ -52,4 +54,4 @@ Az alkalmazás relatív útvonalakat használ, így a `https://felhasznalonev.gi
 
 ## Saját nevek
 
-A paklik és a színésznevek a `data.js` fájlban szerkeszthetők. A játék egyszerű HTML-, CSS- és JavaScript-fájlokból áll, külső függőségek nélkül.
+A paklik, a színésznevek és a filmcímek a `data.js` fájlban szerkeszthetők. A játék egyszerű HTML-, CSS- és JavaScript-fájlokból áll, külső függőségek nélkül.

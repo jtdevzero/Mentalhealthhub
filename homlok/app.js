@@ -1,4 +1,4 @@
-import { DECKS, getDeckActors } from './data.js';
+import { DECKS, getDeckCards } from './data.js?v=2';
 import { Round, tiltState } from './game-core.js';
 
 const $ = (id) => document.getElementById(id);
@@ -66,7 +66,7 @@ function renderDecks() {
     for (const [className, text] of [
       ['deck-name', deck.name],
       ['deck-description', deck.description],
-      ['deck-count', `${getDeckActors(deck.id).length} SZÍNÉSZ`],
+      ['deck-count', `${getDeckCards(deck.id).length} ${deck.unit}`],
     ]) {
       const span = document.createElement('span');
       span.className = className;
@@ -222,7 +222,7 @@ async function beginRound() {
   ensureAudio();
   // iOS requires this call directly in the user's click event, before any await.
   const permission = requestMotion();
-  round = new Round({ actors: getDeckActors(settings.deck), duration: settings.duration });
+  round = new Round({ actors: getDeckCards(settings.deck), duration: settings.duration });
   mode = 'countdown';
   manuallyPaused = false;
   countdownRemaining = 3;
@@ -258,7 +258,10 @@ function startPlaying(now) {
 }
 
 function renderActor() {
-  if (round?.current) $('actor-name').textContent = round.current.name.toLocaleUpperCase('hu-HU');
+  if (round?.current) {
+    $('actor-name').textContent = round.current.name.toLocaleUpperCase('hu-HU');
+    $('card-prompt').textContent = round.current.type === 'movie' ? 'MELYIK FILM EZ?' : 'KI VAGYOK ÉN?';
+  }
   $('live-score').textContent = round?.results.filter((item) => item.outcome === 'correct').length ?? 0;
   renderMotionStatus();
 }
@@ -269,7 +272,7 @@ function renderMotionStatus() {
     : !motionSeen
       ? 'Billentésre várva… A gombokat is használhatjátok.'
       : tiltArmed
-        ? 'Billents a következő névhez, vagy használjátok a gombokat.'
+        ? 'Billents a következő feladványhoz, vagy használjátok a gombokat.'
         : 'Tartsd újra függőlegesen a kijelzőt a következő billentéshez.';
 }
 
@@ -320,8 +323,8 @@ function showResults() {
   $('results-reason').textContent = { time: 'LEJÁRT AZ IDŐ', exhausted: 'ELFOGYOTT A PAKLI!', stopped: 'KÖR BEFEJEZVE' }[round.reason];
   $('results-title').textContent = correct ? 'Tapsot a főszereplőnek!' : 'A következő kör a tiéd!';
   const deckName = DECKS.find((deck) => deck.id === settings.deck).name;
-  $('result-summary').textContent = `${deckName} · ${settings.duration} másodperces kör · ${correct} kitalált színész`;
-  $('result-total').textContent = `${results.length} NÉV`;
+  $('result-summary').textContent = `${deckName} · ${settings.duration} másodperces kör · ${correct} helyes megfejtés`;
+  $('result-total').textContent = `${results.length} FELADVÁNY`;
   $('round-details').open = false;
   $('result-list').replaceChildren();
   if (!results.length) {
@@ -416,6 +419,7 @@ window.addEventListener('deviceorientation', (event) => {
 }, { passive: true });
 
 renderDecks();
+$('total-cards').textContent = `${getDeckCards('mix').length} FELADVÁNY · VÉGTELEN TIPP`;
 syncSound();
 $('tilt-setting').checked = settings.tilt;
 document.querySelector(`input[name="duration"][value="${settings.duration}"]`).checked = true;
