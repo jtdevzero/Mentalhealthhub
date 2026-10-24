@@ -1,6 +1,7 @@
-import { DECKS, getDeckCards } from './data.js?v=3';
+import { DECKS, getDeckCards } from './data.js?v=4';
 import { Round, tiltState } from './game-core.js';
-import { PartyHistory } from './party-history.js?v=3';
+import { PartyHistory } from './party-history.js?v=4';
+import { RoundRecorder } from './round-recorder.js?v=4';
 
 const $ = (id) => document.getElementById(id);
 const STORAGE_KEY = 'homlok-settings-v1';
@@ -17,6 +18,9 @@ try {
 let partyStorage = null;
 try { partyStorage = window.localStorage; } catch { /* In-memory history still works. */ }
 const partyHistory = new PartyHistory({ cards: getDeckCards('mix'), storage: partyStorage });
+const allCards = getDeckCards('mix');
+const cardsById = new Map(allCards.map((card) => [card.id, card]));
+const recorder = new RoundRecorder({ onChange: renderRecorderState });
 
 let mode = 'home';
 let round = null;
@@ -36,6 +40,10 @@ let audioContext = null;
 let toastTimeout;
 let activeOverlay = null;
 let roundSession = 0;
+let lastVisibleCard = null;
+let recordingRequested = false;
+let lastRecordingError = '';
+let videoFilename = '';
 const screens = ['home', 'countdown', 'game', 'results'];
 
 function persistSettings() {
@@ -101,26 +109,150 @@ function updatePartyStatus() {
     const remaining = partyHistory.remaining(getDeckCards(deck.id)).length;
     const label = document.querySelector(`[data-remaining-deck="${deck.id}"]`);
     if (label) {
-      label.textContent = remaining ? `${remaining} még nem volt` : 'Minden feladvány volt már';
+      label.textContent = remaining ? `${remaining} még nem volt` : 'Nincs új, engedélyezett lap';
       label.classList.toggle('deck-exhausted', remaining === 0);
     }
   }
   const remaining = partyHistory.remaining(getDeckCards(settings.deck)).length;
-  $('party-progress').textContent = `${partyHistory.usedCount} már volt · ${partyHistory.totalCount - partyHistory.usedCount} új maradt`;
+  const unseenCount = partyHistory.remaining(allCards).length;
+  const playedCount = partyHistory.totalCount - unseenCount - partyHistory.excludedCount;
+  $('party-progress').textContent = `${playedCount} már volt · ${unseenCount} új · ${partyHistory.excludedCount} kizárva`;
+  $('excluded-count').textContent = partyHistory.excludedCount;
   $('party-message').textContent = remaining
     ? 'A látott feladványokat a következő körökben és pakliváltáskor is kihagyjuk.'
-    : 'Ez a pakli elfogyott. Válasszatok másikat, vagy indítsatok új partit.';
+    : 'Nincs új, engedélyezett lap. Váltsatok paklit, kezdjetek új partit, vagy engedjetek vissza kizárt lapokat.';
   $('start-button').disabled = remaining === 0;
   $('reset-party').disabled = partyHistory.usedCount === 0;
   $('play-again').disabled = remaining === 0;
   $('remaining-summary').textContent = remaining
     ? `Ebben a pakliban még ${remaining} új feladvány vár rátok.`
-    : 'Ez a pakli elfogyott. A pakliknál válasszatok másikat, vagy indítsatok új partit.';
+    : 'Nincs új, engedélyezett lap. A pakliknál válthattok, új partit kezdhettek vagy visszaengedhettek lapokat.';
 }
 
 function recordVisibleCard(now) {
   if (mode !== 'playing' || round?.status !== 'playing' || activeOverlay || document.hidden || now < feedbackUntil) return;
+  lastVisibleCard = round.current;
   if (partyHistory.markSeen(round.current.id)) updatePartyStatus();
+}
+
+function normalizeSearch(value) {
+  return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('hu-HU');
+}
+
+function exclusionButton(card) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'exclude-button';
+  button.dataset.cardId = card.id;
+  updateExclusionButton(button);
+  return button;
+}
+
+function updateExclusionButton(button) {
+  const card = cardsById.get(button.dataset.cardId);
+  const excluded = partyHistory.isExcluded(card.id);
+  button.textContent = excluded ? 'Visszaengedés' : 'Kizárás';
+  button.classList.toggle('is-excluded', excluded);
+  button.setAttribute('aria-label', `${excluded ? 'Visszaengedés' : 'Kizárás'}: ${card.name}`);
+  button.setAttribute('aria-pressed', String(excluded));
+}
+
+function renderExclusions(focusId = null) {
+  const search = normalizeSearch($('card-search').value.trim());
+  const onlyExcluded = $('exclusion-filter').value === 'excluded';
+  const cards = allCards.filter((card) => (!onlyExcluded || partyHistory.isExcluded(card.id))
+    && (!search || normalizeSearch(card.name).includes(search)))
+    .sort((a, b) => a.name.localeCompare(b.name, 'hu'));
+  $('exclusion-results-count').textContent = `${cards.length} találat · ${partyHistory.excludedCount} kizárt feladvány`;
+  $('exclusion-list').replaceChildren();
+  for (const card of cards) {
+    const li = document.createElement('li');
+    const name = document.createElement('span');
+    name.className = 'exclusion-card-name';
+    name.textContent = card.name;
+    const type = document.createElement('small');
+    type.textContent = card.type === 'movie' ? 'Film' : 'Színész';
+    name.append(type);
+    li.append(name, exclusionButton(card));
+    $('exclusion-list').append(li);
+  }
+  $('exclusion-empty').hidden = cards.length !== 0;
+  if (focusId) {
+    const button = [...$('exclusion-list').querySelectorAll('button')].find((item) => item.dataset.cardId === focusId);
+    (button || $('card-search')).focus({ preventScroll: true });
+  }
+}
+
+function toggleExclusion(event) {
+  const button = event.target.closest('button[data-card-id]');
+  if (!button) return;
+  const id = button.dataset.cardId;
+  if (!cardsById.has(id)) return;
+  const excluded = partyHistory.isExcluded(id);
+  if (excluded) partyHistory.restore(id);
+  else partyHistory.exclude(id);
+  updatePartyStatus();
+  $('result-list').querySelectorAll('button[data-card-id]').forEach(updateExclusionButton);
+  const message = excluded
+    ? partyHistory.hasSeen(id) ? 'Visszaengedve. Ebben a partiban már volt; az Új parti után tér vissza.' : 'Visszaengedve a paklikba.'
+    : 'Kizárva a következő partikból is. A Kizárt lapok menüben visszaengedhetitek.';
+  if ($('exclusions-dialog').open) {
+    renderExclusions(id);
+    $('exclusion-feedback').textContent = message;
+    $('exclusion-feedback').hidden = false;
+  } else toast(message);
+}
+
+function clearVideoResult() {
+  $('round-video').pause();
+  $('round-video').removeAttribute('src');
+  $('round-video').load();
+  $('round-video').hidden = true;
+  $('video-actions').hidden = true;
+  $('round-video-panel').hidden = true;
+  $('video-retention-note').hidden = true;
+  $('download-video').removeAttribute('href');
+  videoFilename = '';
+}
+
+function renderRecorderState() {
+  const state = recorder.state;
+  const waiting = playingMode() && recordingRequested && state === 'preparing';
+  $('video-prepare-status').hidden = !waiting;
+  $('skip-video-button').hidden = !waiting;
+  $('countdown-screen').classList.toggle('is-preparing-video', waiting);
+  const active = mode === 'playing' && ['recording', 'paused'].includes(state);
+  $('recording-indicator').hidden = !active;
+  $('recording-indicator').classList.toggle('is-paused', state === 'paused');
+  $('recording-state-label').textContent = state === 'paused' ? 'VIDEÓ SZÜNETEL' : 'FELVÉTEL';
+  if (recorder.error && recorder.error !== lastRecordingError) {
+    lastRecordingError = recorder.error;
+    toast(recorder.error);
+  }
+}
+
+function showVideoResult(result) {
+  if (!result) {
+    if (!$('round-video-panel').hidden) {
+      $('video-result-status').textContent = recorder.error || 'Ebben a körben nem készült menthető videó.';
+    }
+    return;
+  }
+  const extension = result.extension.replace(/^\./, '');
+  videoFilename = `homlok-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.${extension}`;
+  $('round-video-panel').hidden = false;
+  $('video-result-status').textContent = recorder.error || 'Nézzétek vissza a kör legjobb pillanatait!';
+  $('round-video').src = result.url;
+  $('round-video').hidden = false;
+  $('download-video').href = result.url;
+  $('download-video').download = videoFilename;
+  $('video-actions').hidden = false;
+  $('video-retention-note').hidden = false;
+  let shareable = false;
+  try {
+    shareable = Boolean(navigator.share && navigator.canShare?.({ files: [new File([result.blob], videoFilename, { type: result.mimeType })] }));
+  } catch { /* A letöltés megosztás nélkül is elérhető. */ }
+  $('share-video').hidden = !shareable;
 }
 
 function syncSound() {
@@ -200,8 +332,13 @@ function updateOverlays() {
   }
   if (mode === 'playing' && round) {
     const now = performance.now();
-    if (overlay || document.hidden) round.pause(now);
-    else round.resume(now);
+    if (overlay || document.hidden) {
+      round.pause(now);
+      recorder.pause();
+    } else {
+      round.resume(now);
+      recorder.resume();
+    }
   }
 }
 
@@ -266,6 +403,11 @@ async function beginRound() {
   ensureAudio();
   // iOS requires this call directly in the user's click event, before any await.
   const permission = requestMotion();
+  clearVideoResult();
+  lastRecordingError = '';
+  void recorder.discard();
+  recordingRequested = $('record-setting').checked;
+  lastVisibleCard = null;
   round = new Round({ actors: available, duration: settings.duration });
   mode = 'countdown';
   manuallyPaused = false;
@@ -280,6 +422,8 @@ async function beginRound() {
   $('answer-feedback').hidden = true;
   showScreen('countdown');
   updateOverlays();
+  if (recordingRequested) void recorder.prepare();
+  renderRecorderState();
   requestFullScreen();
   void acquireWakeLock();
   const motionGranted = await permission;
@@ -293,12 +437,14 @@ async function beginRound() {
 function startPlaying(now) {
   mode = 'playing';
   round.start(now);
+  if (recordingRequested) recorder.start();
   $('game-deck').textContent = DECKS.find((deck) => deck.id === settings.deck).name.toLocaleUpperCase('hu-HU');
   showScreen('game');
   renderActor();
   renderTimer(now);
   updateOverlays();
   recordVisibleCard(now);
+  renderRecorderState();
   beep('start');
 }
 
@@ -355,6 +501,7 @@ function answer(outcome) {
 
 function showResults() {
   if (mode === 'results' || !round) return;
+  const endingRound = round;
   mode = 'results';
   preparing = false;
   roundSession += 1;
@@ -363,6 +510,10 @@ function showResults() {
   updateOverlays();
   updatePartyStatus();
   const results = round.results;
+  const displayed = [...results];
+  if (lastVisibleCard && !results.some((entry) => entry.actor.id === lastVisibleCard.id)) {
+    displayed.push({ actor: lastVisibleCard, outcome: 'unanswered' });
+  }
   const correct = results.filter((entry) => entry.outcome === 'correct').length;
   const passed = results.length - correct;
   $('correct-count').textContent = correct;
@@ -372,26 +523,32 @@ function showResults() {
   $('results-title').textContent = correct ? 'Tapsot a főszereplőnek!' : 'A következő kör a tiéd!';
   const deckName = DECKS.find((deck) => deck.id === settings.deck).name;
   $('result-summary').textContent = `${deckName} · ${settings.duration} másodperces kör · ${correct} helyes megfejtés`;
-  $('result-total').textContent = `${results.length} FELADVÁNY`;
+  $('result-total').textContent = `${displayed.length} FELADVÁNY`;
   $('round-details').open = false;
   $('result-list').replaceChildren();
-  if (!results.length) {
+  if (!displayed.length) {
     const li = document.createElement('li');
     li.textContent = 'Ebben a körben még nem érkezett válasz.';
     li.className = 'result-empty';
     $('result-list').append(li);
   }
-  for (const result of results) {
+  for (const result of displayed) {
     const li = document.createElement('li');
     const name = document.createElement('span');
     name.textContent = result.actor.name;
     const outcome = document.createElement('span');
     outcome.className = `result-outcome${result.outcome === 'pass' ? ' pass' : ''}`;
-    outcome.textContent = result.outcome === 'correct' ? '✓ Megvan' : '↷ Passz';
-    li.append(name, outcome);
+    outcome.textContent = result.outcome === 'correct' ? '✓ Megvan' : result.outcome === 'pass' ? '↷ Passz' : 'Válasz nélkül';
+    li.append(name, outcome, exclusionButton(result.actor));
     $('result-list').append(li);
   }
   showScreen('results');
+  $('round-video-panel').hidden = !recordingRequested && !recorder.result;
+  $('video-result-status').textContent = 'A videó összeállítása…';
+  void recorder.stop().then((result) => {
+    if (mode === 'results' && round === endingRound) showVideoResult(result);
+  });
+  renderRecorderState();
   releaseDevice();
   beep('end');
   ($('play-again').disabled ? $('back-home') : $('play-again')).focus({ preventScroll: true });
@@ -404,11 +561,14 @@ function goHome() {
   preparing = false;
   manuallyPaused = false;
   round = null;
+  recordingRequested = false;
+  clearVideoResult();
+  void recorder.discard();
   updatePartyStatus();
   updateOverlays();
   showScreen('home');
   releaseDevice();
-  ($('start-button').disabled ? $('reset-party') : $('start-button')).focus({ preventScroll: true });
+  ($('start-button').disabled ? $('manage-exclusions') : $('start-button')).focus({ preventScroll: true });
 }
 
 function pauseGame() {
@@ -431,7 +591,7 @@ function resumeGame() {
 function frame(now) {
   const delta = Math.max(0, now - lastFrame);
   lastFrame = now;
-  if (mode === 'countdown' && !preparing && !manuallyPaused && !needsLandscape() && !document.hidden) {
+  if (mode === 'countdown' && !preparing && recorder.state !== 'preparing' && !manuallyPaused && !needsLandscape() && !document.hidden) {
     countdownRemaining = Math.max(0, countdownRemaining - delta / 1000);
     const number = Math.ceil(countdownRemaining);
     if (number !== countdownLastNumber && number > 0) {
@@ -474,6 +634,10 @@ updatePartyStatus();
 $('total-cards').textContent = `${getDeckCards('mix').length} FELADVÁNY · VÉGTELEN TIPP`;
 syncSound();
 $('tilt-setting').checked = settings.tilt;
+$('record-setting').checked = false;
+$('record-setting').disabled = !RoundRecorder.supported();
+$('recording-help').hidden = RoundRecorder.supported();
+if (!RoundRecorder.supported()) $('recording-help').textContent = 'Ebben a böngészőben a videófelvétel nem érhető el. A játékot videó nélkül is játszhatjátok.';
 document.querySelector(`input[name="duration"][value="${settings.duration}"]`).checked = true;
 document.querySelectorAll('input[name="duration"]').forEach((input) => input.addEventListener('change', () => {
   settings.duration = Number(input.value);
@@ -507,14 +671,48 @@ $('finish-button').addEventListener('click', () => {
 });
 $('correct-button').addEventListener('click', () => answer('correct'));
 $('pass-button').addEventListener('click', () => answer('pass'));
+$('record-setting').addEventListener('change', () => { $('recording-help').hidden = !$('record-setting').checked; });
+$('skip-video-button').addEventListener('click', () => {
+  recordingRequested = false;
+  $('record-setting').checked = false;
+  void recorder.discard();
+  lastFrame = performance.now();
+});
+$('share-video').addEventListener('click', async () => {
+  const result = recorder.result;
+  if (!result || !videoFilename) return;
+  try {
+    await navigator.share({ files: [new File([result.blob], videoFilename, { type: result.mimeType })], title: 'Homlok! — A kör videója' });
+  } catch (error) {
+    if (error.name !== 'AbortError') toast('A megosztás nem sikerült. A Letöltés gombbal menthetitek a videót.');
+  }
+});
+$('delete-video').addEventListener('click', () => {
+  clearVideoResult();
+  void recorder.discard();
+  toast('A videó törölve erről az oldalról.');
+});
+$('manage-exclusions').addEventListener('click', () => {
+  $('card-search').value = '';
+  $('exclusion-filter').value = partyHistory.excludedCount ? 'excluded' : 'all';
+  $('exclusion-feedback').hidden = true;
+  $('exclusion-feedback').textContent = '';
+  renderExclusions();
+  $('exclusions-dialog').showModal();
+});
+$('close-exclusions').addEventListener('click', () => $('exclusions-dialog').close());
+$('card-search').addEventListener('input', () => renderExclusions());
+$('exclusion-filter').addEventListener('change', () => renderExclusions());
+$('exclusion-list').addEventListener('click', toggleExclusion);
+$('result-list').addEventListener('click', toggleExclusion);
 $('reset-party').addEventListener('click', () => $('reset-party-dialog').showModal());
 $('cancel-party-reset').addEventListener('click', () => $('reset-party-dialog').close());
 $('confirm-party-reset').addEventListener('click', () => {
   partyHistory.reset();
   $('reset-party-dialog').close();
   updatePartyStatus();
-  $('start-button').focus({ preventScroll: true });
-  toast('Új parti indult. Minden feladvány újra játszható.');
+  ($('start-button').disabled ? $('manage-exclusions') : $('start-button')).focus({ preventScroll: true });
+  toast('Új parti indult. A nem kizárt lapok újra játszhatók.');
 });
 
 document.addEventListener('keydown', (event) => {
@@ -544,6 +742,7 @@ document.addEventListener('visibilitychange', () => {
   if (document.hidden) pauseGame();
   else { lastFrame = performance.now(); void acquireWakeLock(); }
 });
+window.addEventListener('pagehide', () => { void recorder.discard(); });
 requestAnimationFrame(frame);
 
 if ('serviceWorker' in navigator && window.isSecureContext) {
